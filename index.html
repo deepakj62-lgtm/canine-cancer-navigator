@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K9 Onco Navigator — Personalized Canine Cancer Treatment Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f7fa; --white: #ffffff; --card: #ffffff;
+    --blue-900: #0c2d48; --blue-700: #1565a0; --blue-600: #1976b8;
+    --blue-500: #2196d3; --blue-400: #42a5d5; --blue-100: #e3f2fd; --blue-50: #f0f7ff;
+    --teal-700: #00796b; --teal-500: #009688; --teal-100: #e0f2f1;
+    --green-700: #2e7d32; --green-500: #4caf50; --green-100: #e8f5e9; --green-50: #f1f8e9;
+    --amber-700: #f57f17; --amber-500: #ffc107; --amber-100: #fff8e1;
+    --red-700: #c62828; --red-500: #ef5350; --red-100: #ffebee;
+    --purple-700: #6a1b9a; --purple-500: #ab47bc; --purple-100: #f3e5f6;
+    --gray-900: #1a2332; --gray-700: #455a64; --gray-500: #78909c;
+    --gray-300: #cfd8dc; --gray-200: #eceff1; --gray-100: #f5f7fa;
+    --border: #dfe6ed; --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--gray-900); font-size: 14px; line-height: 1.6; }
+
+  header {
+    background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 50%, var(--teal-700) 100%);
+    padding: 24px 32px; display: flex; align-items: center; gap: 16px;
+    border-bottom: 3px solid var(--teal-500); position: relative; overflow: hidden;
+  }
+  header::after { content: ''; position: absolute; top: -60%; right: -5%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%); border-radius: 50%; }
+  .logo { width: 52px; height: 52px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; backdrop-filter: blur(8px); flex-shrink: 0; }
+  header h1 { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.3px; position: relative; z-index: 1; }
+  header p { color: rgba(255,255,255,0.75); font-size: 12px; margin-top: 2px; position: relative; z-index: 1; }
+  .header-badges { display: flex; gap: 8px; margin-left: auto; position: relative; z-index: 1; flex-wrap: wrap; }
+  .h-badge { background: rgba(255,255,255,0.12); backdrop-filter: blur(8px); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; }
+
+  .layout { display: grid; grid-template-columns: 420px 1fr; min-height: calc(100vh - 88px); }
+  @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+
+  .input-panel { background: var(--white); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; max-height: calc(100vh - 88px); }
+  .section-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--blue-600); margin: 20px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid var(--blue-100); display: flex; align-items: center; gap: 6px;
+  }
+  .section-label:first-child { margin-top: 0; }
+  .field { margin-bottom: 10px; }
+  .field label { display: block; font-size: 12px; color: var(--gray-700); margin-bottom: 3px; font-weight: 500; }
+  select, input[type=number], input[type=text] {
+    width: 100%; background: var(--gray-100); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--gray-900); padding: 8px 10px; font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.2s;
+  }
+  select:focus, input:focus { border-color: var(--blue-500); box-shadow: 0 0 0 3px rgba(33,150,213,0.1); }
+  .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+  .cb-item { display: flex; align-items: center; gap: 5px; font-size: 12px; cursor: pointer; padding: 2px 0; color: var(--gray-700); }
+  .cb-item input[type=checkbox] { accent-color: var(--blue-600); width: 14px; height: 14px; }
+  .inline-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .generate-btn {
+    width: 100%; padding: 14px; background: linear-gradient(135deg, var(--blue-700), var(--teal-700));
+    border: none; border-radius: 8px; color: #fff; font-size: 15px; font-weight: 700; font-family: inherit;
+    cursor: pointer; margin-top: 16px; letter-spacing: 0.3px; transition: opacity 0.2s, transform 0.1s;
+  }
+  .generate-btn:hover { opacity: 0.92; }
+  .generate-btn:active { transform: scale(0.99); }
+
+  .output-panel { padding: 24px; overflow-y: auto; max-height: calc(100vh - 88px); background: var(--bg); }
+  .placeholder { color: var(--gray-500); text-align: center; padding: 80px 24px; }
+  .placeholder-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.6; }
+  .placeholder strong { color: var(--gray-700); font-size: 16px; display: block; margin-bottom: 8px; }
+
+  .out-section { margin-bottom: 24px; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .out-section h2 { font-size: 14px; font-weight: 700; color: var(--blue-900); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .out-section h2 .layer-tag {
+    background: var(--blue-100); color: var(--blue-700); font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .out-card {
+    background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow); transition: transform 0.15s;
+  }
+  .out-card:hover { transform: translateY(-1px); }
+  .out-card.green { border-left: 4px solid var(--green-500); }
+  .out-card.blue { border-left: 4px solid var(--blue-500); }
+  .out-card.amber { border-left: 4px solid var(--amber-500); }
+  .out-card.red { border-left: 4px solid var(--red-500); }
+  .out-card.teal { border-left: 4px solid var(--teal-500); }
+  .out-card.purple { border-left: 4px solid var(--purple-500); }
+  .out-card .card-title { font-weight: 700; font-size: 13px; color: var(--gray-900); margin-bottom: 4px; }
+  .out-card .card-detail { font-size: 12px; color: var(--gray-500); line-height: 1.6; }
+  .out-card .card-detail strong { color: var(--gray-700); }
+  .out-card .card-cost { display: inline-block; margin-top: 8px; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .cost-low { background: var(--green-100); color: var(--green-700); }
+  .cost-mid { background: var(--blue-100); color: var(--blue-700); }
+  .cost-high { background: var(--amber-100); color: var(--amber-700); }
+  .cost-vhigh { background: var(--red-100); color: var(--red-700); }
+
+  .channel-bar { display: flex; gap: 4px; flex-wrap: wrap; margin: 8px 0; }
+  .ch-chip { padding: 3px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; }
+  .ch-chip.active { background: var(--green-100); color: var(--green-700); border: 1px solid #a5d6a7; }
+  .ch-chip.inactive { background: var(--gray-200); color: var(--gray-500); border: 1px solid var(--border); }
+
+  .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 12px 0; }
+  .score-box { background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: 10px; padding: 14px; text-align: center; }
+  .score-val { font-size: 28px; font-weight: 800; color: var(--blue-700); }
+  .score-val.good { color: var(--green-700); }
+  .score-val.fair { color: var(--amber-700); }
+  .score-val.poor { color: var(--red-700); }
+  .score-label { font-size: 10px; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+  .alert-box { background: var(--red-100); border: 1px solid var(--red-500); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+  .alert-box h4 { color: var(--red-700); font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .alert-box p { color: var(--gray-700); font-size: 12px; }
+
+  .prognosis-banner {
+    background: linear-gradient(135deg, var(--blue-900), var(--teal-700));
+    border-radius: 12px; padding: 28px; text-align: center; color: #fff; margin-bottom: 20px; position: relative; overflow: hidden;
+  }
+  .prognosis-banner::after { content: ''; position: absolute; top: -40%; right: -8%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; }
+  .prognosis-banner h3 { font-size: 12px; font-weight: 500; opacity: 0.8; position: relative; }
+  .prognosis-banner .big { font-size: 36px; font-weight: 800; position: relative; }
+  .prognosis-banner .sub { font-size: 12px; opacity: 0.65; margin-top: 6px; position: relative; }
+
+  .partner-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .partner-table th { background: var(--blue-50); color: var(--blue-700); text-align: left; padding: 8px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--blue-100); }
+  .partner-table td { padding: 8px 10px; border-bottom: 1px solid var(--gray-200); color: var(--gray-700); }
+  .partner-table tr:hover { background: var(--blue-50); }
+  .partner-table .name { font-weight: 600; color: var(--gray-900); }
+  .tag { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .tag.fda { background: var(--green-100); color: var(--green-700); }
+  .tag.offlabel { background: var(--amber-100); color: var(--amber-700); }
+  .tag.exp { background: var(--blue-100); color: var(--blue-700); }
+  .tag.usda { background: #e8eaf6; color: #283593; }
+  .tag.synth { background: var(--purple-100); color: var(--purple-700); }
+
+  .pipeline-step { display: flex; align-items: flex-start; gap: 12px; margin: 8px 0; }
+  .pipeline-num { background: var(--blue-700); color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .pipeline-content { flex: 1; }
+  .pipeline-content strong { color: var(--gray-900); font-size: 12px; }
+  .pipeline-content p { color: var(--gray-500); font-size: 11px; margin-top: 2px; }
+
+  .synergy-box { background: linear-gradient(135deg, var(--green-50), var(--teal-100)); border: 1px solid #a5d6a7; border-radius: 8px; padding: 10px 12px; margin: 8px 0; font-size: 12px; }
+  .synergy-box strong { color: var(--green-700); }
+
+  .breed-info { background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: 6px; padding: 8px 10px; margin-top: 6px; font-size: 11px; color: var(--blue-700); display: none; }
+  .breed-info.visible { display: block; }
+
+  .weapon-count { background: var(--teal-100); color: var(--teal-700); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; display: inline-block; margin-bottom: 12px; }
+
+  @media print {
+    .input-panel { display: none; }
+    .layout { display: block; }
+    header { padding: 16px; }
+    .output-panel { max-height: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">&#128054;</div>
+  <div>
+    <h1>K9 Onco Navigator</h1>
+    <p>Personalized 5-Layer Canine Cancer Treatment Pipeline &mdash; Beyond Standard of Care</p>
+  </div>
+  <div class="header-badges">
+    <span class="h-badge">9 Antigen Channels</span>
+    <span class="h-badge">20+ Immune Weapons</span>
+    <span class="h-badge">TME Modulation</span>
+    <span class="h-badge">NCI COTC</span>
+  </div>
+</header>
+
+<div class="layout">
+<!-- ===================== INPUT PANEL ===================== -->
+<div class="input-panel">
+
+  <div class="section-label">&#128054; Patient Profile</div>
+  <div class="field">
+    <label>Breed</label>
+    <select id="breed" onchange="showBreedInfo()">
+      <option value="">— Select Breed —</option>
+      <optgroup label="High Cancer Risk Breeds">
+        <option value="Golden Retriever">Golden Retriever</option>
+        <option value="Labrador Retriever">Labrador Retriever</option>
+        <option value="Boxer">Boxer</option>
+        <option value="Bernese Mountain Dog">Bernese Mountain Dog</option>
+        <option value="Rottweiler">Rottweiler</option>
+        <option value="German Shepherd">German Shepherd</option>
+        <option value="Great Dane">Great Dane</option>
+        <option value="Irish Wolfhound">Irish Wolfhound</option>
+        <option value="Saint Bernard">Saint Bernard</option>
+        <option value="Flat-Coated Retriever">Flat-Coated Retriever</option>
+        <option value="Scottish Terrier">Scottish Terrier</option>
+      </optgroup>
+      <optgroup label="Medium Cancer Risk Breeds">
+        <option value="Beagle">Beagle</option>
+        <option value="Cocker Spaniel">Cocker Spaniel</option>
+        <option value="Doberman Pinscher">Doberman Pinscher</option>
+        <option value="Standard Poodle">Standard Poodle</option>
+        <option value="Bulldog">Bulldog</option>
+        <option value="Husky">Siberian Husky</option>
+        <option value="Australian Shepherd">Australian Shepherd</option>
+        <option value="Shar-Pei">Shar-Pei</option>
+        <option value="Pit Bull">Pit Bull / Am Staff</option>
+        <option value="Weimaraner">Weimaraner</option>
+      </optgroup>
+      <optgroup label="Other">
+        <option value="Mixed Breed">Mixed Breed / Unknown</option>
+        <option value="Small Breed Other">Small Breed (Other)</option>
+        <option value="Medium Breed Other">Medium Breed (Other)</option>
+        <option value="Large Breed Other">Large Breed (Other)</option>
+        <option value="Giant Breed Other">Giant Breed (Other)</option>
+      </optgroup>
+    </select>
+    <div class="breed-info" id="breedInfo"></div>
+  </div>
+  <div class="inline-fields">
+    <div class="field"><label>Age (years)</label><input type="number" id="age" placeholder="e.g. 8" min="0" max="20"></div>
+    <div class="field"><label>Weight (lbs)</label><input type="number" id="weight" placeholder="e.g. 70" min="1" max="250"></div>
+  </div>
+  <div class="inline-fields">
+    <div class="field">
+      <label>Sex</label>
+      <select id="sex"><option value="MN">Male (Neutered)</option><option value="MI">Male (Intact)</option><option value="FS">Female (Spayed)</option><option value="FI">Female (Intact)</option></select>
+    </div>
+    <div class="field">
+      <label>Body Condition Score</label>
+      <select id="bcs"><option value="4">4/9 — Underweight</option><option value="5" selected>5/9 — Ideal</option><option value="6">6/9 — Slightly overweight</option><option value="7">7/9 — Overweight</option><option value="8">8/9 — Obese</option></select>
+    </div>
+  </div>
+
+  <div class="section-label">&#129516; Cancer Diagnosis</div>
+  <div class="field">
+    <label>Cancer Type</label>
+    <select id="cancerType">
+      <option value="">— Select Cancer Type —</option>
+      <optgroup label="Most Common">
+        <option value="Lymphoma_B">Lymphoma — B-cell</option>
+        <option value="Lymphoma_T">Lymphoma — T-cell</option>
+        <option value="MCT">Mast Cell Tumor (MCT)</option>
+        <option value="Osteosarcoma">Osteosarcoma (Bone Cancer)</option>
+        <option value="Hemangiosarcoma">Hemangiosarcoma (HSA)</option>
+        <option value="Melanoma">Oral Melanoma</option>
+      </optgroup>
+      <optgroup label="Common">
+        <option value="STS">Soft Tissue Sarcoma (STS)</option>
+        <option value="TCC">Transitional Cell Carcinoma (Bladder)</option>
+        <option value="Mammary">Mammary Carcinoma</option>
+        <option value="AnalSac">Anal Sac Adenocarcinoma (ASAC)</option>
+        <option value="Histiocytic">Histiocytic Sarcoma</option>
+        <option value="Thyroid">Thyroid Carcinoma</option>
+      </optgroup>
+      <optgroup label="Less Common">
+        <option value="Nasal">Nasal Tumor</option>
+        <option value="BrainMeningioma">Brain — Meningioma</option>
+        <option value="BrainGlioma">Brain — Glioma</option>
+        <option value="Insulinoma">Insulinoma (Pancreatic)</option>
+        <option value="SCC">Squamous Cell Carcinoma</option>
+        <option value="Fibrosarcoma">Fibrosarcoma</option>
+        <option value="Osteosarcoma_Axial">Osteosarcoma — Axial</option>
+        <option value="Lymphoma_Cutaneous">Lymphoma — Cutaneous</option>
+        <option value="Pheochromocytoma">Pheochromocytoma</option>
+      </optgroup>
+    </select>
+  </div>
+  <div class="inline-fields">
+    <div class="field">
+      <label>Stage / Grade</label>
+      <select id="stage"><option value="">— Select —</option><option value="I">Stage I / Grade I (Low)</option><option value="II">Stage II / Grade II (Intermediate)</option><option value="III">Stage III / Grade III (High)</option><option value="IV">Stage IV (Advanced/Metastatic)</option><option value="V">Stage V (Blood/Marrow)</option></select>
+    </div>
+    <div class="field">
+      <label>Substage</label>
+      <select id="substage"><option value="a">a — Clinically well</option><option value="b">b — Clinically ill</option></select>
+    </div>
+  </div>
+  <div class="field">
+    <label>Tumor Location</label>
+    <select id="location"><option value="NA">Not applicable / Systemic</option><option value="Appendicular">Appendicular (limb)</option><option value="Axial">Axial (spine/skull/ribs)</option><option value="Oral">Oral cavity</option><option value="Cutaneous">Cutaneous (skin)</option><option value="Subcutaneous">Subcutaneous</option><option value="Splenic">Splenic</option><option value="Hepatic">Hepatic (liver)</option><option value="GI">Gastrointestinal</option><option value="Nasal">Nasal cavity</option><option value="Bladder">Bladder/Urethral</option><option value="Mammary">Mammary chain</option><option value="Perianal">Perianal / Anal sac</option><option value="Intracranial">Intracranial</option><option value="Pulmonary">Pulmonary (lung)</option></select>
+  </div>
+
+  <div class="section-label">&#128300; Diagnostics & Molecular Profile</div>
+  <div class="field">
+    <label>Histopathology Grade (Patnaik / Kiupel)</label>
+    <select id="histoGrade"><option value="Unknown">Unknown / Pending</option><option value="Low">Low grade (Kiupel) / Grade I</option><option value="High">High grade (Kiupel) / Grade III</option><option value="Intermediate">Intermediate / Grade II</option></select>
+  </div>
+  <div class="inline-fields">
+    <div class="field"><label>Mitotic Index (per 10 HPF)</label><input type="number" id="mitoticIndex" placeholder="e.g. 5" min="0" max="100"></div>
+    <div class="field"><label>Ki-67 (%)</label><input type="number" id="ki67" placeholder="e.g. 20" min="0" max="100"></div>
+  </div>
+  <div class="field">
+    <label>Genomic Profiling Status</label>
+    <select id="genomicStatus"><option value="None">None / Not done</option><option value="FidoCure">FidoCure Tumor Panel (targeted genes)</option><option value="WGS">WGS — Tumor + Normal (full genome)</option><option value="WES">WES — Whole Exome Sequencing</option></select>
+  </div>
+  <div class="field">
+    <label>TME Type (Tumor Microenvironment) — if assessed</label>
+    <select id="tme"><option value="Unknown">Unknown / Not assessed</option><option value="Hot">Hot (TIL-rich, CD8+ infiltrated)</option><option value="Warm">Warm (moderate TIL infiltration)</option><option value="Excluded">Immune-Excluded (T-cells at margins only)</option><option value="Cold">Cold (minimal TILs)</option><option value="Desert">Desert (no immune cells detected)</option></select>
+  </div>
+  <div class="inline-fields">
+    <div class="field"><label>Est. TMB (mutations/Mb)</label><input type="number" id="tmb" placeholder="if known" min="0" max="300"></div>
+    <div class="field">
+      <label>Immunophenotype (Lymphoma)</label>
+      <select id="immunophenotype"><option value="NA">N/A (not lymphoma)</option><option value="B-cell">B-cell (CD79a+/CD20+/PAX5+)</option><option value="T-cell">T-cell (CD3+)</option><option value="Null">Null cell / Indeterminate</option></select>
+    </div>
+  </div>
+
+  <div class="section-label">&#129516; Mutations & Biomarkers</div>
+  <div class="checkbox-grid">
+    <label class="cb-item"><input type="checkbox" id="ckit"> c-KIT mutation+</label>
+    <label class="cb-item"><input type="checkbox" id="braf"> BRAF V595E+</label>
+    <label class="cb-item"><input type="checkbox" id="tp53"> TP53 mutation</label>
+    <label class="cb-item"><input type="checkbox" id="pten"> PTEN loss</label>
+    <label class="cb-item"><input type="checkbox" id="pik3ca"> PIK3CA mutation</label>
+    <label class="cb-item"><input type="checkbox" id="her2amp"> HER2-like amplification</label>
+    <label class="cb-item"><input type="checkbox" id="mdr1"> MDR1/ABCB1 mutation</label>
+    <label class="cb-item"><input type="checkbox" id="cox2"> COX-2 overexpression</label>
+    <label class="cb-item"><input type="checkbox" id="cleanMargins"> Clean surgical margins</label>
+    <label class="cb-item"><input type="checkbox" id="metastasis"> Confirmed metastasis</label>
+    <label class="cb-item"><input type="checkbox" id="lymphNode"> Lymph node involved</label>
+    <label class="cb-item"><input type="checkbox" id="agNOR"> AgNOR elevated</label>
+    <label class="cb-item"><input type="checkbox" id="pcna"> PCNA elevated</label>
+    <label class="cb-item"><input type="checkbox" id="pdl1pos"> PD-L1 expression detected</label>
+  </div>
+
+  <div class="section-label">&#128137; Treatment History</div>
+  <div class="checkbox-grid">
+    <label class="cb-item"><input type="checkbox" name="prior" value="Surgery"> Surgery</label>
+    <label class="cb-item"><input type="checkbox" name="prior" value="Chemo"> Chemotherapy</label>
+    <label class="cb-item"><input type="checkbox" name="prior" value="Radiation"> Radiation</label>
+    <label class="cb-item"><input type="checkbox" name="prior" value="TKI"> TKI (Palladia/Kinavet)</label>
+    <label class="cb-item"><input type="checkbox" name="prior" value="Steroids"> Prednisone/Steroids</label>
+    <label class="cb-item"><input type="checkbox" name="prior" value="NSAIDs"> NSAIDs (piroxicam)</label>
+    <label class="cb-item"><input type="checkbox" name="prior" value="Metronomic"> Metronomic chemo</label>
+    <label class="cb-item"><input type="checkbox" name="prior" value="Immunotherapy"> Immunotherapy</label>
+    <label class="cb-item"><input type="checkbox" name="prior" value="Oncept"> Oncept vaccine</label>
+    <label class="cb-item"><input type="checkbox" name="prior" value="ImpriMed"> ImpriMed tested</label>
+  </div>
+  <div class="field" style="margin-top:8px">
+    <label>Performance Status (Modified Karnofsky)</label>
+    <select id="performance"><option value="100">100 — Normal, no complaints</option><option value="90">90 — Normal activity, minor symptoms</option><option value="80">80 — Normal activity with effort</option><option value="70">70 — Cares for self, unable to do normal activity</option><option value="60">60 — Requires occasional assistance</option><option value="50">50 — Requires considerable assistance</option><option value="40">40 — Disabled, requires special care</option></select>
+  </div>
+
+  <div class="section-label">&#127463;&#127480; Owner & Access</div>
+  <div class="inline-fields">
+    <div class="field">
+      <label>US State / Region</label>
+      <select id="state">
+        <option value="any">Any / Willing to travel</option>
+        <optgroup label="Northeast"><option value="MA">Massachusetts</option><option value="NY">New York</option><option value="PA">Pennsylvania</option><option value="NJ">New Jersey</option><option value="CT">Connecticut</option></optgroup>
+        <optgroup label="Southeast"><option value="VA">Virginia</option><option value="NC">North Carolina</option><option value="GA">Georgia</option><option value="FL">Florida</option><option value="AL">Alabama</option><option value="TN">Tennessee</option><option value="SC">South Carolina</option></optgroup>
+        <optgroup label="Midwest"><option value="OH">Ohio</option><option value="IN">Indiana</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="WI">Wisconsin</option><option value="IL">Illinois</option><option value="MO">Missouri</option></optgroup>
+        <optgroup label="South/Southwest"><option value="TX">Texas</option><option value="LA">Louisiana</option><option value="OK">Oklahoma</option><option value="AZ">Arizona</option><option value="NM">New Mexico</option></optgroup>
+        <optgroup label="West"><option value="CA">California</option><option value="CO">Colorado</option><option value="WA">Washington</option><option value="OR">Oregon</option></optgroup>
+      </select>
+    </div>
+    <div class="field">
+      <label>Budget</label>
+      <select id="budget"><option value="Low">$1,000–$3,000</option><option value="Medium" selected>$3,000–$10,000</option><option value="High">$10,000–$25,000</option><option value="Unlimited">$25,000+ / Insured</option></select>
+    </div>
+  </div>
+  <div class="field">
+    <label>Pet Insurance</label>
+    <select id="insurance"><option value="None">None</option><option value="Basic">Basic (limited coverage)</option><option value="Comprehensive">Comprehensive (cancer covered)</option><option value="Trupanion">Trupanion / Embrace / Nationwide</option></select>
+  </div>
+
+  <button class="generate-btn" onclick="generatePipeline()">Generate Personalized Treatment Pipeline</button>
+</div>
+
+<!-- ===================== OUTPUT PANEL ===================== -->
+<div class="output-panel" id="outputPanel">
+  <div class="placeholder">
+    <div class="placeholder-icon">&#128054;</div>
+    <strong>Enter patient profile and click Generate</strong>
+    <span style="color:var(--gray-500)">Generates a personalized 5-layer pipeline with 9 antigen channels, 20+ immune weapons,<br>TME modulation, and full synthesis pathways — unique to this dog and this cancer.</span>
+  </div>
+</div>
+</div>
+
+<script>
+// ========== BREED RISK DATABASE ==========
+const BREED_RISKS = {
+  'Golden Retriever': {cancers:['Lymphoma','Hemangiosarcoma','MCT','Osteosarcoma'],risk:'60% lifetime cancer rate. #1 cause of death. HSA especially prevalent. Golden Retriever Lifetime Study (3,044 dogs) ongoing.', lifespan:'10-12y', tmeProfile:'Often warm-cold. HSA creates immunosuppressive TME via VEGF. Lymphoma TME varies by subtype.'},
+  'Labrador Retriever': {cancers:['Lymphoma','MCT','Hemangiosarcoma'],risk:'Lymphoma and MCT most common. Lower HSA risk than Goldens.', lifespan:'10-12y', tmeProfile:'Variable. MCT TME often mast-cell-mediated immunosuppression.'},
+  'Boxer': {cancers:['MCT','Lymphoma','BrainGlioma','Histiocytic'],risk:'Extremely high MCT predisposition. Brachycephalic: higher brain tumor risk. MCT often multiple.', lifespan:'10-12y', tmeProfile:'MCT releases histamine/heparin creating unique TME. Brain tumors typically immune-excluded.'},
+  'Bernese Mountain Dog': {cancers:['Histiocytic','Lymphoma','MCT','Osteosarcoma'],risk:'Histiocytic sarcoma prevalence 25%. Median lifespan 7-8 years due to cancer. Genetic predisposition confirmed.', lifespan:'6-8y', tmeProfile:'Histiocytic sarcoma TME is typically cold-desert. Myeloid-derived suppressor cells dominant.'},
+  'Rottweiler': {cancers:['Osteosarcoma','Lymphoma','Histiocytic'],risk:'Osteosarcoma risk 8x average. Weight-bearing long bones. Early neutering may increase risk.', lifespan:'8-10y', tmeProfile:'Osteosarcoma TME is typically cold-excluded. Dense bone matrix blocks T-cell infiltration.'},
+  'German Shepherd': {cancers:['Hemangiosarcoma','Lymphoma','Osteosarcoma'],risk:'HSA of the spleen most common. Perianal fistulas may mask anal sac tumors.', lifespan:'9-13y', tmeProfile:'HSA highly vascular TME, VEGF-driven. MDR1 mutation common — affects drug metabolism.'},
+  'Great Dane': {cancers:['Osteosarcoma','Lymphoma','Hemangiosarcoma'],risk:'Giant breed: highest osteosarcoma risk category.', lifespan:'7-10y', tmeProfile:'Osteosarcoma cold TME. Giant breed may have different DLA haplotype distributions.'},
+  'Irish Wolfhound': {cancers:['Osteosarcoma','Lymphoma','Hemangiosarcoma'],risk:'Osteosarcoma incidence among highest of all breeds.', lifespan:'6-8y', tmeProfile:'Cold osteosarcoma TME typical.'},
+  'Flat-Coated Retriever': {cancers:['Histiocytic','Hemangiosarcoma','Lymphoma'],risk:'Histiocytic sarcoma and STS disproportionately common. Cancer #1 cause of death.', lifespan:'8-10y', tmeProfile:'Histiocytic sarcoma: desert TME common. May respond to TME conversion.'},
+  'Scottish Terrier': {cancers:['TCC','MCT','Melanoma'],risk:'18x higher TCC risk. BRAF V595E highly prevalent in TCC.', lifespan:'12-15y', tmeProfile:'TCC moderately immunogenic. BRAF creates targetable pathway.'},
+  'Shar-Pei': {cancers:['MCT','Histiocytic'],risk:'MCT predisposition. Unique immune system (hyaluronosis) may affect treatment response.', lifespan:'8-12y', tmeProfile:'Unique hyaluronan-rich TME. May affect drug penetration.'},
+  'Pit Bull': {cancers:['MCT','STS'],risk:'MCT common, often cutaneous. Generally good prognosis when caught early.', lifespan:'12-14y', tmeProfile:'Cutaneous MCT TME usually warm. Good candidate for immunotherapy.'},
+  'Doberman Pinscher': {cancers:['Lymphoma','Osteosarcoma'],risk:'Lymphoma predisposition. DCM complicates doxorubicin use.', lifespan:'10-12y', tmeProfile:'Monitor cardiac function closely — limits doxorubicin (ICD inducer).'},
+};
+
+// ========== DRUG DATABASE ==========
+const DRUGS = {
+  toceranib: {name:'Toceranib phosphate (Palladia)', status:'FDA-approved', target:'Multi-TKI (VEGFR, PDGFR, c-KIT)', dose:'2.75 mg/kg EOD', cost:'$200-400/month', source:'Zoetis'},
+  masitinib: {name:'Masitinib (Kinavet)', status:'Conditional FDA', target:'c-KIT, PDGFR, FGFR3', dose:'12.5 mg/kg/day', cost:'$300-600/month', source:'AB Science'},
+  rabacfosadine: {name:'Rabacfosadine (Tanovea-CA1)', status:'Conditional FDA', target:'Nucleotide analog', dose:'1 mg/kg IV q3wk x5', cost:'$400-800/treatment', source:'Elanco'},
+  verdinexor: {name:'Verdinexor (Laverdia-CA1)', status:'Conditional FDA', target:'XPO1 nuclear export inhibitor', dose:'1.75 mg/kg MWF', cost:'$200-500/month', source:'Antech/Mars'},
+  stelfonta: {name:'Tigilanol tiglate (Stelfonta)', status:'FDA-approved', target:'PKC activator intratumoral', dose:'Intratumoral per label', cost:'$500-1,500', source:'Virbac'},
+  oncept: {name:'Oncept Melanoma Vaccine', status:'USDA-licensed', target:'Tyrosinase DNA plasmid', dose:'0.4mL IM q2wk x4, q6mo boost', cost:'$500-800/series', source:'Boehringer Ingelheim'},
+  carboplatin: {name:'Carboplatin', status:'Standard', target:'Platinum/DNA crosslink', dose:'300 mg/m² IV q3wk', cost:'$200-500/treatment', source:'Generic'},
+  doxorubicin: {name:'Doxorubicin', status:'Standard (ICD inducer)', target:'Topoisomerase II', dose:'30 mg/m² IV q2-3wk', cost:'$200-400/treatment', source:'Generic'},
+  vincristine: {name:'Vincristine', status:'Standard', target:'Microtubule inhibitor', dose:'0.7 mg/m² IV weekly', cost:'$50-150/treatment', source:'Generic'},
+  vinblastine: {name:'Vinblastine', status:'Standard', target:'Microtubule inhibitor', dose:'2 mg/m² IV q2wk', cost:'$100-250/treatment', source:'Generic'},
+  lomustine: {name:'Lomustine (CCNU)', status:'Standard', target:'Alkylating agent (BBB-crossing)', dose:'60-90 mg/m² PO q3wk', cost:'$50-200/cycle', source:'Generic/Wedgewood'},
+  cyclophosphamide: {name:'Cyclophosphamide', status:'Standard (ICD inducer)', target:'Alkylating agent', dose:'200-250 mg/m² IV or 10-15 mg/m² daily metronomic', cost:'$30-100/month', source:'Generic'},
+  piroxicam: {name:'Piroxicam', status:'NSAID + anti-tumor', target:'COX-1/COX-2 inhibitor', dose:'0.3 mg/kg SID', cost:'$15-30/month', source:'Generic'},
+};
+
+// ========== ONCOLOGY CENTERS ==========
+const CENTERS = [
+  {name:'Colorado State University — Flint Animal Cancer Center', city:'Fort Collins, CO', state:'CO', nci:true, specialty:'Largest vet cancer center. NCI COTC founder. Clinical trials leader. Immunotherapy research.'},
+  {name:'UC Davis — VMTH Oncology', city:'Davis, CA', state:'CA', nci:true, specialty:'NCI COTC member. Radiation oncology, immunotherapy, CAR-T research.'},
+  {name:'University of Pennsylvania — Ryan Veterinary Hospital', city:'Philadelphia, PA', state:'PA', nci:true, specialty:'NCI COTC. Canine CAR-T research pioneer. Immunotherapy clinical trials.'},
+  {name:'Tufts University — Foster Hospital', city:'North Grafton, MA', state:'MA', nci:true, specialty:'NCI COTC. SRS/SRT radiation, oncology clinical trials.'},
+  {name:'NC State — CVM Oncology', city:'Raleigh, NC', state:'NC', nci:true, specialty:'NCI COTC. Comparative oncology, immunotherapy trials, checkpoint inhibitor research.'},
+  {name:'Ohio State University — VMC', city:'Columbus, OH', state:'OH', nci:true, specialty:'NCI COTC. Osteosarcoma research, novel drug trials.'},
+  {name:'University of Wisconsin — SVM', city:'Madison, WI', state:'WI', nci:true, specialty:'NCI COTC. UW-25 CHOP origin. Lymphoma expertise.'},
+  {name:'Cornell University — CUHA', city:'Ithaca, NY', state:'NY', nci:true, specialty:'NCI COTC. Advanced imaging, radiation oncology.'},
+  {name:'University of Minnesota — VMC', city:'St. Paul, MN', state:'MN', nci:true, specialty:'NCI COTC. Bone marrow transplant, immunology.'},
+  {name:'Texas A&M — VMTH', city:'College Station, TX', state:'TX', nci:true, specialty:'NCI COTC. Large and small animal oncology.'},
+  {name:'University of Florida — UF Health Vet', city:'Gainesville, FL', state:'FL', nci:true, specialty:'Radiation oncology, SRS, clinical trials.'},
+  {name:'Purdue University — VTHS', city:'West Lafayette, IN', state:'IN', nci:true, specialty:'NCI COTC founder. Comparative oncology research leader.'},
+  {name:'Michigan State University — VMC', city:'East Lansing, MI', state:'MI', nci:false, specialty:'Oncology service, clinical trials.'},
+  {name:'Virginia-Maryland CVM', city:'Blacksburg, VA', state:'VA', nci:false, specialty:'Medical and radiation oncology.'},
+  {name:'Auburn University — Bailey SVM', city:'Auburn, AL', state:'AL', nci:false, specialty:'Oncology, radiation therapy.'},
+  {name:'University of Georgia — VTH', city:'Athens, GA', state:'GA', nci:false, specialty:'Oncology service, radiation therapy.'},
+];
+
+const COMPOUNDERS = [
+  {name:'Wedgewood Pharmacy', location:'Swedesboro, NJ', capabilities:'Largest vet compounder. Custom chemo doses, mRNA synthesis partnerships, TKIs, hazardous drug handling. Ships nationwide.'},
+  {name:'Stokes Pharmacy', location:'Mt. Laurel, NJ', capabilities:'Veterinary compounding. Chemotherapy, custom formulations.'},
+  {name:'Roadrunner Pharmacy', location:'Phoenix, AZ', capabilities:'Oral chemo, custom doses, hazardous drug handling.'},
+  {name:'Covetrus (Patterson/MWI)', location:'Nationwide', capabilities:'Full chemo supply, generic agents, medical supplies.'},
+];
+
+const RESEARCH_PARTNERS = [
+  {name:'Elias Animal Health', location:'Olathe, KS', type:'Adoptive T-cell Therapy', capabilities:'ELIAS Autologous T-cell therapy (ECI-101). Only canine adoptive cell therapy. Osteosarcoma, solid tumors. Tumor excised → T-cells expanded → reinfused.'},
+  {name:'FidoCure (One Health Company)', location:'Palo Alto, CA', type:'Genomic Profiling', capabilities:'Tumor WES/targeted panel. Neoantigen identification. Matched targeted therapy. 10,000+ canine patient database. DLA typing available.'},
+  {name:'ImpriMed', location:'Palo Alto, CA', type:'Drug Sensitivity Testing', capabilities:'AI-driven drug response prediction for canine lymphoma/leukemia. Tests patient tumor cells against 15+ drugs ex vivo. Results in 5-7 days.'},
+  {name:'NCI COTC', location:'Bethesda, MD', type:'Clinical Trials Network', capabilities:'19 academic vet centers. Tests new drugs in dogs with spontaneous cancers. Bridge to human oncology. Free/subsidized cutting-edge treatments.'},
+  {name:'Antech/Mars Diagnostics', location:'Nationwide', type:'Molecular Diagnostics', capabilities:'Flow cytometry, PARR, c-KIT mutation testing, BRAF V595E testing, immunohistochemistry panels, PD-L1 staining.'},
+  {name:'IDEXX Laboratories', location:'Westbrook, ME', type:'Diagnostics', capabilities:'CBC, chemistry, cytology, histopathology, breed-specific panels, liquid biopsy development.'},
+  {name:'Morris Animal Foundation', location:'Golden, CO', type:'Research Funder', capabilities:'Golden Retriever Lifetime Study. Funds canine cancer immunotherapy research.'},
+  {name:'AKC Canine Health Foundation', location:'Raleigh, NC', type:'Research Funder', capabilities:'Canine cancer research grants, breed-specific studies.'},
+  {name:'Torigen Pharmaceuticals', location:'Nationwide', type:'Autologous Cancer Vaccine', capabilities:'Patient-specific autologous cancer vaccine from tumor tissue. Lysed tumor cells → immune stimulation. Available through participating vet oncologists.'},
+];
+
+// ========== HELPERS ==========
+function v(id) { return document.getElementById(id).value; }
+function cb(id) { return document.getElementById(id).checked; }
+function num(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function getPrior() { return [...document.querySelectorAll('input[name="prior"]:checked')].map(e=>e.value); }
+
+function showBreedInfo() {
+  const breed = v('breed'), el = document.getElementById('breedInfo');
+  if (BREED_RISKS[breed]) {
+    const b = BREED_RISKS[breed];
+    el.innerHTML = `<strong>Cancer Risk:</strong> ${b.risk}<br><strong>Common cancers:</strong> ${b.cancers.join(', ')}<br><strong>Avg lifespan:</strong> ${b.lifespan}<br><strong>TME Profile:</strong> ${b.tmeProfile}`;
+    el.classList.add('visible');
+  } else { el.classList.remove('visible'); }
+}
+
+function getNearestCenters(state) {
+  const regionMap = {
+    'MA':['MA','NY','PA','CT','NJ'], 'NY':['NY','MA','PA','CT','NJ'], 'PA':['PA','NY','NJ','MA','CT'],
+    'NJ':['NJ','PA','NY','CT','MA'], 'CT':['CT','MA','NY','PA','NJ'],
+    'VA':['VA','NC','PA','GA','AL'], 'NC':['NC','VA','GA','SC','TN','AL'],
+    'GA':['GA','AL','NC','FL','SC','TN'], 'FL':['FL','GA','AL','NC','TX'],
+    'AL':['AL','GA','FL','NC','TN'], 'TN':['TN','NC','GA','AL','VA','OH'],
+    'SC':['SC','NC','GA','VA','FL'],
+    'OH':['OH','MI','IN','PA','WI'], 'IN':['IN','OH','MI','WI','IL','MN'],
+    'MI':['MI','OH','IN','WI','MN'], 'MN':['MN','WI','MI','IN','OH'],
+    'WI':['WI','MN','MI','IN','OH','IL'], 'IL':['IL','WI','IN','OH','MN','MO'],
+    'MO':['MO','IL','IN','OH','TX','WI'],
+    'TX':['TX','LA','OK','FL','CO','AZ','NM'], 'LA':['LA','TX','FL','GA','AL'],
+    'OK':['OK','TX','CO','MO','AZ'], 'AZ':['AZ','CA','CO','TX','NM'],
+    'NM':['NM','AZ','CO','TX','CA'],
+    'CA':['CA','CO','AZ','WA','OR'], 'CO':['CO','CA','AZ','TX','WI','MN'],
+    'WA':['WA','CA','CO','OR'], 'OR':['OR','CA','WA','CO'],
+  };
+  const nearby = regionMap[state] || [];
+  let ranked = CENTERS.filter(c => c.state === state);
+  nearby.forEach(s => { if (s !== state) ranked.push(...CENTERS.filter(c => c.state === s && !ranked.includes(c))); });
+  if (ranked.length < 3) ranked.push(...CENTERS.filter(c => c.nci && !ranked.includes(c)));
+  return ranked.slice(0, 5);
+}
+
+// ========== MAIN PIPELINE GENERATION ==========
+function generatePipeline() {
+  const breed = v('breed'), age = num('age'), weight = num('weight');
+  const sex = v('sex'), bcs = parseInt(v('bcs'));
+  const ct = v('cancerType'), stage = v('stage'), substage = v('substage');
+  const loc = v('location'), histoGrade = v('histoGrade');
+  const mi = num('mitoticIndex'), ki67 = num('ki67'), tmb = num('tmb');
+  const ckit = cb('ckit'), braf = cb('braf'), tp53 = cb('tp53'), pten = cb('pten');
+  const pik3ca = cb('pik3ca'), her2amp = cb('her2amp'), mdr1 = cb('mdr1');
+  const cox2 = cb('cox2'), pdl1pos = cb('pdl1pos');
+  const cleanMargins = cb('cleanMargins'), metastasis = cb('metastasis');
+  const lymphNode = cb('lymphNode'), agNOR = cb('agNOR'), pcna = cb('pcna');
+  const immunophenotype = v('immunophenotype');
+  const genomicStatus = v('genomicStatus'), tme = v('tme');
+  const prior = getPrior();
+  const performance = parseInt(v('performance'));
+  const state = v('state'), budget = v('budget'), insurance = v('insurance');
+  const budgetOK = budget === 'High' || budget === 'Unlimited';
+
+  if (!ct || !stage) { alert('Please select Cancer Type and Stage/Grade'); return; }
+
+  let html = '';
+  let weaponCount = 0;
+
+  // ============ PROGNOSIS ============
+  const prog = getPrognosis(ct, stage, substage, histoGrade, mi, ki67, immunophenotype, prior, metastasis, lymphNode, performance, breed, age);
+  html += `<div class="prognosis-banner">
+    <h3>ESTIMATED MEDIAN SURVIVAL — STANDARD OF CARE</h3>
+    <div class="big">${prog.survival}</div>
+    <div class="sub">${prog.note}</div>
+  </div>`;
+
+  // ============ ALERTS ============
+  const alerts = buildAlerts(ct, stage, histoGrade, mi, performance, prior, metastasis, age, breed, immunophenotype, braf, ckit, substage, mdr1, tme, genomicStatus);
+  if (alerts.length > 0) {
+    html += '<div class="out-section">';
+    alerts.forEach(a => { html += `<div class="alert-box"><h4>${a.title}</h4><p>${a.msg}</p></div>`; });
+    html += '</div>';
+  }
+
+  // ============ MISSING DATA SUGGESTIONS ============
+  const dataGaps = buildMissingDataSuggestions(ct, genomicStatus, ckit, braf, immunophenotype, pdl1pos, tmb, tme);
+  if (dataGaps.length > 0) html += renderMissingData(dataGaps);
+
+  // ============ LAYER 0: STANDARD OF CARE ============
+  const layer0 = buildLayer0(ct, stage, substage, histoGrade, mi, ki67, ckit, braf, cleanMargins, metastasis, lymphNode, cox2, immunophenotype, prior, performance, budget, breed, age, weight, sex, loc);
+  html += renderLayer('Layer 0', 'Standard of Care — Surgery, Chemotherapy, Radiation', layer0);
+  weaponCount += layer0.length;
+
+  // ============ LAYER 1: 9 ANTIGEN CHANNELS ============
+  const channelResult = buildChannels(ct, ckit, braf, cox2, immunophenotype, histoGrade, mi, ki67, tmb, genomicStatus, metastasis, tp53, pten, pik3ca, her2amp, pdl1pos, prior, tme, breed);
+  html += renderChannels(channelResult.channels);
+
+  // ============ LAYER 2: PERSONALIZED IMMUNE WEAPONS ============
+  const layer2 = buildLayer2(ct, stage, histoGrade, ckit, braf, cox2, immunophenotype, prior, budget, metastasis, lymphNode, cleanMargins, mi, ki67, loc, performance, genomicStatus, tme, tmb, tp53, pten, pik3ca, her2amp, pdl1pos, mdr1, channelResult.activeChannels, breed, weight);
+  html += renderLayer('Layer 2', 'Personalized Immunotherapy & Precision Weapons Arsenal', layer2);
+  weaponCount += layer2.length;
+
+  // ============ SYNTHESIS PIPELINES ============
+  const synth = buildSynthesisPipelines(ct, stage, genomicStatus, channelResult.activeChannels, budgetOK, breed, weight, prior);
+  if (synth.length > 0) {
+    html += renderSynthesis(synth);
+    weaponCount += synth.length;
+  }
+
+  // ============ LAYER 3: TME MODULATION ============
+  const layer3 = buildLayer3(ct, tme, prior, metastasis, cox2, budgetOK, histoGrade, pdl1pos, breed);
+  html += renderLayer('Layer 3', 'Tumor Microenvironment Modulation — Cold-to-Hot Conversion', layer3);
+  weaponCount += layer3.length;
+
+  // ============ LAYER 4: MONITORING ============
+  const layer4 = buildLayer4(ct, stage, prior, budget, genomicStatus);
+  html += renderLayer('Layer 4', 'Monitoring, Response Assessment & Adaptation', layer4);
+
+  // ============ WEAPON COUNT ============
+  html = `<div class="weapon-count">${weaponCount} Personalized Treatment Options Generated</div>` + html;
+
+  // ============ REFERRAL CENTERS ============
+  html += renderCenters(state);
+
+  // ============ RESEARCH PARTNERS ============
+  html += renderResearch(ct, stage, breed, genomicStatus);
+
+  // ============ DRUG SOURCES ============
+  html += renderCompounders(ct, budget);
+
+  // ============ COST SUMMARY ============
+  html += renderCostSummary(ct, stage, budget, insurance, layer0, layer2, synth);
+
+  document.getElementById('outputPanel').innerHTML = html;
+  document.getElementById('outputPanel').scrollTop = 0;
+}
+
+// ========== PROGNOSIS ==========
+function getPrognosis(ct, stage, substage, hg, mi, ki67, immuno, prior, met, ln, perf, breed, age) {
+  const p = {survival:'', note:''};
+  const relapsed = prior.includes('Chemo');
+
+  if (ct === 'Lymphoma_B') {
+    if (relapsed) { p.survival = '2–5 mo'; p.note = 'Relapsed B-cell. Rescue protocols extend modestly. Personalized weapons in Layer 2 may significantly improve.'; }
+    else if (substage === 'b') { p.survival = '6–9 mo'; p.note = 'Substage b reduces prognosis. CHOP recommended. Layer 2 immunotherapy can extend beyond this.'; }
+    else { p.survival = '12–14 mo'; p.note = 'B-cell lymphoma CHOP. ~80-90% response. Personalized pipeline aims to push beyond this ceiling.'; }
+  } else if (ct === 'Lymphoma_T') {
+    p.survival = relapsed ? '1–3 mo' : '6–9 mo';
+    p.note = relapsed ? 'Relapsed T-cell. Very poor with standard care. Personalized approaches critical.' : 'T-cell lymphoma. Worse than B-cell. ImpriMed + immunotherapy pipeline in Layer 2.';
+  } else if (ct === 'MCT') {
+    if (hg === 'Low' || stage === 'I') { p.survival = '2+ years'; p.note = 'Low-grade MCT with excision. >90% cure. Immunotherapy optional but can prevent recurrence.'; }
+    else if (hg === 'High') { p.survival = '4–6 mo'; p.note = 'High-grade MCT standard care. Personalized pipeline in Layer 2 aims to improve this significantly.'; }
+    else { p.survival = '12–18 mo'; p.note = 'Intermediate MCT. Layer 2 precision medicine can optimize beyond standard protocols.'; }
+  } else if (ct === 'Osteosarcoma') {
+    p.survival = met ? '1–3 mo' : '10–12 mo';
+    p.note = met ? 'Metastatic OSA. Standard care limited. Personalized immunotherapy (Elias T-cell, mRNA vaccine) offers new pathways.' : 'Appendicular OSA: amputation + carboplatin standard. Personalized pipeline adds T-cell therapy, vaccines.';
+  } else if (ct === 'Hemangiosarcoma') {
+    p.survival = (stage==='I' && !met) ? '6–8 mo' : '2–4 mo';
+    p.note = 'HSA highly aggressive. This is where personalized mRNA vaccines (Conyngham approach) and TME modulation in Layer 2-3 can make the most difference.';
+  } else if (ct === 'Melanoma') {
+    if (stage === 'I') p.survival = '12–18 mo';
+    else if (met) p.survival = '3–6 mo';
+    else p.survival = '6–12 mo';
+    p.note = 'Oral melanoma. Oncept (Layer 0) + personalized neoantigen vaccine + checkpoint (Layer 2) = multi-modal immunotherapy pipeline.';
+  } else if (ct === 'STS') {
+    if (hg === 'Low' && cleanMargins) p.survival = '2+ years';
+    else if (hg === 'High') p.survival = '6–12 mo';
+    else p.survival = '12–24 mo';
+    p.note = 'STS prognosis depends on grade/margins. Layer 2 adds targeted therapies and immunotherapy for high-grade/recurrent.';
+  } else if (ct === 'TCC') {
+    p.survival = '6–12 mo'; p.note = 'Bladder TCC. BRAF V595E targeting + COX-2 pathway + checkpoint combination in Layer 2.';
+  } else if (ct === 'Histiocytic') {
+    p.survival = '3–6 mo'; p.note = 'Histiocytic sarcoma aggressive. Standard CCNU limited. Layer 2 offers TME conversion + immunotherapy combination strategies.';
+  } else if (ct === 'Mammary') {
+    p.survival = (stage==='I' && cleanMargins) ? '18+ mo' : '6–12 mo';
+    p.note = 'Mammary carcinoma. Layer 2 adds targeted therapy if HER2-like, checkpoint if PD-L1+.';
+  } else if (ct === 'AnalSac') {
+    p.survival = met ? '6–8 mo' : '12–18 mo'; p.note = 'ASAC. Surgery + chemo standard. Layer 2 adds TKI + immunotherapy combination.';
+  } else { p.survival = 'Variable'; p.note = 'Consult veterinary oncologist. Personalized Layer 2 weapons generated below.'; }
+
+  if (perf <= 50) p.note += ' Low performance status may limit aggressive treatment.';
+  return p;
+}
+
+// ========== ALERTS ==========
+function buildAlerts(ct, stage, hg, mi, perf, prior, met, age, breed, immuno, braf, ckit, substage, mdr1, tme, genomicStatus) {
+  const alerts = [];
+  if (ct === 'Lymphoma_T' || (ct.startsWith('Lymphoma') && immuno === 'T-cell'))
+    alerts.push({title:'T-cell Lymphoma — Worse Prognosis', msg:'T-cell phenotype has shorter remission/survival than B-cell. ImpriMed drug sensitivity testing STRONGLY recommended. Layer 2 personalized immunotherapy critical.'});
+  if (ct === 'Hemangiosarcoma' && stage !== 'I')
+    alerts.push({title:'HSA — Highly Aggressive', msg:'80%+ microscopic metastasis at diagnosis. DIC risk. This is where personalized mRNA neoantigen vaccines can make the most impact — see Layer 2 Synthesis Pipeline.'});
+  if (ct === 'MCT' && hg === 'High')
+    alerts.push({title:'High-Grade MCT — Degranulation Risk', msg:'Pre-treat: famotidine + diphenhydramine before ANY manipulation. Layer 2 adds c-KIT targeted therapy + checkpoint combination.'});
+  if (ct === 'Osteosarcoma' && !prior.includes('Surgery'))
+    alerts.push({title:'Pain Management Critical', msg:'Gabapentin + NSAID + opioid multimodal analgesia required. Do NOT undertreat pain. Elias T-cell therapy in Layer 2 may extend survival.'});
+  if (perf <= 50)
+    alerts.push({title:'Low Performance Status', msg:'Karnofsky ≤50. Consider metronomic dosing, oral targeted agents, or palliative immunotherapy (lower intensity Layer 2 options).'});
+  if (ct.startsWith('Lymphoma') && prior.includes('Steroids') && !prior.includes('Chemo'))
+    alerts.push({title:'Prior Steroid Use — MDR Concern', msg:'Pre-treatment steroids reduce CHOP response by 30-40% via MDR1 upregulation. ImpriMed testing can identify which drugs still work despite MDR.'});
+  if (mdr1)
+    alerts.push({title:'MDR1/ABCB1 Mutation Detected', msg:'Affects metabolism of vincristine, doxorubicin, and other P-glycoprotein substrates. Dose reduction required. Avoid vincristine if homozygous MDR1. Test with Washington State University VCL.'});
+  if (genomicStatus === 'None' && ['Hemangiosarcoma','Osteosarcoma','Melanoma','Histiocytic'].includes(ct))
+    alerts.push({title:'Genomic Profiling Recommended', msg:'FidoCure tumor profiling or WGS would unlock personalized neoantigen vaccine pipeline and targeted therapy matching. Without genomics, Layer 2 options are limited to empiric immunotherapy.'});
+  if (['Cold','Desert'].includes(tme))
+    alerts.push({title:'Cold/Desert TME Detected', msg:'Immunotherapy alone will likely fail. Layer 3 TME conversion strategies MUST be applied before or concurrently with Layer 2 immune weapons. Sequence: Convert TME → then deploy immunotherapy.'});
+  return alerts;
+}
+
+// ========== LAYER 0 ==========
+function buildLayer0(ct, stage, substage, hg, mi, ki67, ckit, braf, clean, met, ln, cox2, immuno, prior, perf, budget, breed, age, weight, sex, loc) {
+  const recs = [];
+  const budgetOK = budget === 'High' || budget === 'Unlimited';
+
+  if (ct === 'Lymphoma_B' || ct === 'Lymphoma_T') {
+    const isB = ct === 'Lymphoma_B' || immuno === 'B-cell';
+    const isTcell = ct === 'Lymphoma_T' || immuno === 'T-cell';
+    const relapsed = prior.includes('Chemo');
+    if (!relapsed) {
+      if (isB) {
+        recs.push({t:'CHOP Protocol (UW-25) — B-cell First Line', d:'Cyclophosphamide + doxorubicin + vincristine + prednisone, 25 weeks. B-cell: 80-90% response, 12-14mo median. Doxorubicin limit: 180-240 mg/m² cumulative. Gold standard for B-cell lymphoma.', c:'green', cost:'$5,000-8,000'});
+        if (!budgetOK) recs.push({t:'Single-Agent Doxorubicin (Budget)', d:'Doxorubicin 30 mg/m² IV q3wk x5-6. Response ~75%. Median 8-10 months. Lower cost than CHOP.', c:'blue', cost:'$1,200-2,500'});
+        recs.push({t:'COP Protocol (Avoid Doxorubicin)', d:'Cyclophosphamide 200-250 mg/m² IV q3wk + vincristine 0.5-0.75 mg/m² IV wk 1,2,4,6,8 + prednisone 2 mg/kg/day PO tapering. B-cell: 70-80% response, 7-9mo median. Use when doxorubicin is contraindicated (cardiac disease, Doberman).', c:'blue', cost:'$2,500-5,000'});
+      } else {
+        recs.push({t:'LOPP Protocol — T-cell Lymphoma PREFERRED', d:'Lomustine (CCNU) 60 mg/m² PO day 1 + vincristine 0.5-0.75 mg/m² IV day 1 + procarbazine 50 mg/m² PO days 1-14 + prednisone 2 mg/kg/day PO. Repeat q28d. T-cell lymphoma: LOPP outperforms CHOP in most retrospective studies — 70-80% response, 7-9mo median. Avoids doxorubicin. Procarbazine crosses BBB (useful if CNS involvement). Monitor CBC q2wk due to lomustine myelosuppression.', c:'green', cost:'$1,500-4,000/cycle-series'});
+        recs.push({t:'CHOP Protocol (T-cell Alternative)', d:'Cyclophosphamide + doxorubicin + vincristine + prednisone, 25 weeks. T-cell: lower response than B-cell (60-70%), 6-9mo median. LOPP preferred over CHOP for T-cell; use CHOP if lomustine/procarbazine unavailable or patient cannot tolerate. Doxorubicin limit: 180-240 mg/m².', c:'blue', cost:'$5,000-8,000'});
+        recs.push({t:'COP Protocol — T-cell (Doxorubicin-Free Alternative)', d:'Cyclophosphamide 200-250 mg/m² IV q3wk + vincristine 0.5-0.75 mg/m² IV + prednisone 2 mg/kg/day PO tapering. T-cell: 50-65% response, 5-7mo median. Preferred when cardiac disease precludes doxorubicin AND lomustine unavailable. Lower toxicity profile — suitable for older or debilitated patients.', c:'blue', cost:'$2,500-5,000'});
+        recs.push({t:'Laverdia-CA1 (Verdinexor — T-cell)', d:'FDA conditionally approved for relapsed/refractory T-cell lymphoma. 0.6 mg/kg 3x/week PO. XPO1 inhibitor — novel mechanism. Response ~22% in heavily pre-treated dogs. Best used after LOPP failure.', c:'amber', cost:'$400-600/month'});
+      }
+    } else {
+      if (isTcell) {
+        recs.push({t:'LOPP Rescue (T-cell Relapsed)', d:'If not previously used: LOPP (lomustine + vincristine + procarbazine + prednisone) q28d. Response 40-60% in CHOP-relapsed T-cell disease. Duration 3-5 months.', c:'amber', cost:'$1,500-3,500/cycle-series'});
+        recs.push({t:'Laverdia-CA1 (Verdinexor — Relapsed T-cell)', d:'FDA conditionally approved for relapsed/refractory T-cell lymphoma. 0.6 mg/kg 3x/week PO. XPO1 inhibitor. First specific approval for relapsed canine T-cell lymphoma.', c:'green', cost:'$400-600/month'});
+      } else {
+        recs.push({t:'Rescue: LOPP Protocol (Relapsed B-cell)', d:'Lomustine 60 mg/m² + vincristine + procarbazine + prednisone q28d. Relapsed B-cell: response 40-50%, duration 2-3 months.', c:'amber', cost:'$2,000-4,000'});
+      }
+      recs.push({t:'Rabacfosadine (Tanovea-CA1 — Relapsed)', d:'Conditionally FDA-approved relapsed lymphoma. 1 mg/kg IV q3wk x5. Response ~30%. Pulmonary toxicity: monitor chest radiographs.', c:'green', cost:'$2,000-4,000'});
+    }
+  }
+  else if (ct === 'MCT') {
+    if (!prior.includes('Surgery') && !met) {
+      recs.push({t:'Wide Surgical Excision', d:`${hg==='Low'?'Low-grade: 2-3cm margins, >90% cure.':'High-grade: wide margins + adjuvant therapy.'} Pre-treat: famotidine + diphenhydramine.`, c:'green', cost:'$1,500-5,000'});
+    }
+    if (hg !== 'Low') recs.push({t:'Vinblastine + Prednisone', d:'Standard adjuvant Grade II/III: vinblastine 2 mg/m² IV q2wk x4-8 + prednisone. Response 47%.', c:'green', cost:'$1,500-3,000'});
+    if (hg === 'Low' && !clean && !met) recs.push({t:'Stelfonta (Intratumoral)', d:'FDA-approved MCT ≤10cm³. Single injection. Complete response 75%. No surgery.', c:'green', cost:'$500-1,500'});
+    if (!clean && prior.includes('Surgery')) recs.push({t:'Radiation (Incomplete Margins)', d:'Definitive RT 16-19 fractions. Local control >90%.', c:'blue', cost:'$4,000-8,000'});
+  }
+  else if (ct === 'Osteosarcoma' || ct === 'Osteosarcoma_Axial') {
+    if (ct === 'Osteosarcoma' && loc !== 'Axial') {
+      recs.push({t:'Amputation + Carboplatin', d:'Standard appendicular OSA. Amputation → carboplatin 300 mg/m² q3wk x4-6. Median 10-12mo vs 4mo surgery alone. Best survival when combined with immunotherapy (Layer 2).', c:'green', cost:'$5,000-9,000'});
+      recs.push({t:'SBRT — Stereotactic Body Radiation Therapy (Limb-Sparing)', d:'Growing limb-preservation alternative to amputation. 3-fraction SBRT (10-12 Gy × 3) delivers ablative-dose radiation to the primary OSA lesion. Colorado State, NC State, and other NCI COTC centers now offer canine SBRT. Median survival 10-12mo (comparable to amputation + chemo). Best candidates: distal radius/ulna lesions, no pathologic fracture, adequate bone cortex remaining. Must add carboplatin adjuvant. Pain relief begins 1-2 weeks post-SBRT.', c:'green', cost:'$5,000-9,000'});
+      recs.push({t:'Limb-Sparing Surgery (Cortical Allograft)', d:'Distal radius tumors. Cortical allograft or endoprosthesis. 30-50% complication rate (infection, implant failure). Must add carboplatin. SBRT increasingly preferred over surgical limb-sparing at COTC centers.', c:'blue', cost:'$5,000-10,000'});
+      recs.push({t:'Hypofractionated Palliative RT (Pain Control)', d:'3-4 fractions (6-8 Gy each). Primary goal: bone pain relief, not tumor control. 75-90% pain response. Does not extend survival. Use when amputation/SBRT declined. Can be combined with carboplatin.', c:'amber', cost:'$1,500-3,000'});
+    } else {
+      recs.push({t:'Radiation ± Chemo (Axial OSA)', d:'Palliative RT (3-4 fractions) or definitive RT. SBRT where anatomy permits. Carboplatin adjuvant.', c:'amber', cost:'$3,000-8,000'});
+    }
+    recs.push({t:'Multimodal Analgesia', d:'Gabapentin 5-10 mg/kg TID + NSAID + tramadol 5 mg/kg TID. Opioid PRN. Critical — bone pain is severe.', c:'red', cost:'$50-150/month'});
+  }
+  else if (ct === 'Hemangiosarcoma') {
+    recs.push({t:'Splenectomy + Doxorubicin', d:'Emergency surgery if ruptured. Doxorubicin 30 mg/m² q3wk x5 post-op. Extends 1-2mo → 4-6mo median.', c:'green', cost:'$4,500-8,000'});
+    recs.push({t:'Yunnan Baiyao + PSP Mushroom', d:'Yunnan Baiyao: 1 cap/20lbs BID (bleeding). PSP (Coriolus): Penn study median 199d vs 86d. Evidence-based.', c:'teal', cost:'$50-100/month'});
+  }
+  else if (ct === 'Melanoma') {
+    if (!prior.includes('Surgery') && !met) recs.push({t:'Aggressive Surgical Resection', d:'Mandibulectomy/maxillectomy. 1-2cm margins. Critical for Oncept efficacy.', c:'green', cost:'$3,000-6,000'});
+    recs.push({t:'Oncept Melanoma Vaccine', d:'USDA-licensed. Human tyrosinase DNA plasmid. 4 biweekly → q6mo boost. Stage II-III: median 5.7 → 18.3mo.', c:'green', cost:'$500-800/series'});
+    if (met) recs.push({t:'Carboplatin (Metastatic)', d:'300 mg/m² q3wk. Response ~28%.', c:'blue', cost:'$200-500/treatment'});
+  }
+  else if (ct === 'STS') {
+    if (!prior.includes('Surgery')) recs.push({t:'Wide Excision (3cm margins)', d:'Grade I clean: >90% cure. Grade II clean: ~75% 5-year local control.', c:'green', cost:'$2,000-4,000'});
+    if (hg === 'High' || !clean) {
+      recs.push({t:'Radiation Therapy', d:'Incomplete margins or high grade: definitive RT 48-54 Gy. Local control >90% + surgery.', c:'green', cost:'$4,000-8,000'});
+      recs.push({t:'Doxorubicin (High Grade)', d:'Grade III only: doxorubicin 30 mg/m² q3wk x5. Metastatic rate 40% for Grade III.', c:'blue', cost:'$1,500-3,000'});
+    }
+    recs.push({t:'Metronomic Cyclophosphamide + Piroxicam', d:'Anti-angiogenic: cyclophosphamide 10-15 mg/m²/day + piroxicam 0.3 mg/kg/day.', c:'teal', cost:'$50-100/month'});
+  }
+  else if (ct === 'TCC') {
+    recs.push({t:'Piroxicam + Mitoxantrone', d:'First-line TCC: piroxicam 0.3 mg/kg SID + mitoxantrone 5 mg/m² q3wk. Median 10-12mo.', c:'green', cost:'$150-400/cycle'});
+    if (braf) recs.push({t:'Vemurafenib (BRAF V595E+)', d:'Off-label BRAF inhibitor. 5 mg/kg BID. FidoCure-guided dosing.', c:'blue', cost:'$200-500/month'});
+  }
+  else if (ct === 'Mammary') {
+    recs.push({t:'Mastectomy + OVH', d:'Regional or chain mastectomy. OVH if intact.', c:'green', cost:'$2,000-5,000'});
+    if (hg === 'High' || met || ln) recs.push({t:'Carboplatin/Doxorubicin Adjuvant', d:'High-grade or node+. Carboplatin 300 mg/m² or doxorubicin q3wk x4-5.', c:'blue', cost:'$1,500-3,000'});
+  }
+  else if (ct === 'AnalSac') {
+    recs.push({t:'Anal Sacculectomy + Chemo', d:'Surgery primary. Carboplatin q3wk x4-5 adjuvant. Monitor calcium.', c:'green', cost:'$3,500-7,000'});
+    recs.push({t:'Toceranib (Palladia)', d:'Shows activity in ASAC. 2.75 mg/kg EOD. For unresectable/metastatic.', c:'green', cost:'$200-400/month'});
+  }
+  else if (ct === 'Histiocytic') {
+    recs.push({t:'Lomustine (CCNU)', d:'First-line: 60-90 mg/m² PO q3wk. Response ~46%. Monitor liver + CBC.', c:'green', cost:'$50-200/cycle'});
+    recs.push({t:'Doxorubicin (Alternative)', d:'30 mg/m² q3wk. Can alternate with CCNU.', c:'blue', cost:'$200-400/treatment'});
+  }
+  else if (ct === 'Thyroid') {
+    if (!met) recs.push({t:'Thyroidectomy', d:'Freely movable masses: surgery. Check thyroglobulin.', c:'green', cost:'$2,000-4,000'});
+    recs.push({t:'Toceranib (Palladia)', d:'Significant activity in thyroid carcinoma. 2.75 mg/kg EOD.', c:'green', cost:'$200-400/month'});
+  }
+  else if (ct === 'Nasal') {
+    recs.push({t:'Definitive Radiation', d:'Treatment of choice. 48-54 Gy in 15-18 fractions. Median 12-18mo with RT vs 3-6mo without.', c:'green', cost:'$5,000-8,000'});
+  }
+  else if (ct === 'BrainMeningioma') {
+    recs.push({t:'Radiation Therapy (VMAT/SRS)', d:'Primary treatment. VMAT (Volumetric Modulated Arc Therapy) or SRS (Stereotactic Radiosurgery) preferred. Median survival 18-24mo with RT vs 2-4mo without. Colorado State/NC State lead VMAT protocols.', c:'green', cost:'$5,000-10,000'});
+    recs.push({t:'Lomustine (CCNU — Crosses BBB)', d:'60-70 mg/m² PO q6wk. Lipophilic alkylating agent; crosses blood-brain barrier. Adjuvant after RT. Monitor CBC + liver q3wk.', c:'blue', cost:'$50-200/cycle'});
+    recs.push({t:'Hydroxyurea (Meningioma)', d:'50 mg/kg/day PO. Arrests rapidly dividing meningioma cells. Well-tolerated long-term oral option. Can maintain partial remission post-RT.', c:'teal', cost:'$30-80/month'});
+  }
+  else if (ct === 'BrainGlioma') {
+    recs.push({t:'VMAT RT + Temozolomide (Colorado State Protocol)', d:'Definitive glioma protocol from Colorado State University. VMAT radiation (45-54 Gy in 15-18 fractions) concurrent with temozolomide 50-75 mg/m²/day PO during RT, then adjuvant temozolomide 150-200 mg/m² x5d q28d x6 cycles. Median survival 10-14mo. Temozolomide crosses BBB and is the human glioblastoma standard — now validated in dogs.', c:'green', cost:'$6,000-12,000'});
+    recs.push({t:'Temozolomide (TMZ — Monotherapy)', d:'If VMAT not available: temozolomide 50 mg/m²/day PO x21d on / 7d off (metronomic), or 150-200 mg/m² x5d q28d. Crosses blood-brain barrier. Alkylates DNA at O6-methylguanine. Active against both low- and high-grade gliomas. Available through compounding pharmacies.', c:'blue', cost:'$100-400/cycle'});
+    recs.push({t:'Lomustine (CCNU — Alternative BBB Agent)', d:'60-70 mg/m² PO q6wk. Second alkylating BBB agent. Can alternate with temozolomide or use if TMZ unavailable. Monitor CBC + liver enzymes before each cycle.', c:'blue', cost:'$50-200/cycle'});
+    recs.push({t:'Bevacizumab (Anti-VEGF — Experimental)', d:'Off-label: 5-10 mg/kg IV q2wk. Anti-VEGF antibody reduces glioma-driven angiogenesis and edema. Human GBM analogy. Available through compounding/NCI COTC. Reduces need for prolonged steroid use.', c:'amber', cost:'$400-800/treatment'});
+  }
+  else if (ct === 'SCC') {
+    recs.push({t:'Surgical Excision', d:'Rostral oral: mandibulectomy/maxillectomy. Cutaneous: wide excision.', c:'green', cost:'$2,000-5,000'});
+    if (cox2) recs.push({t:'Piroxicam (COX-2+)', d:'Anti-tumor activity in COX-2+ SCC. 0.3 mg/kg SID.', c:'teal', cost:'$15-30/month'});
+  }
+  else {
+    recs.push({t:'Consult Veterinary Oncologist', d:'Specialist evaluation recommended.', c:'blue', cost:'$200-400'});
+  }
+  return recs;
+}
+
+// ========== LAYER 1: 9 ANTIGEN CHANNELS (CANINE-ADAPTED) ==========
+function buildChannels(ct, ckit, braf, cox2, immuno, hg, mi, ki67, tmb, genomicStatus, met, tp53, pten, pik3ca, her2amp, pdl1pos, prior, tme, breed) {
+  const channels = [];
+  const active = [];
+
+  // 1. NEOANTIGEN CHANNEL — requires WGS/WES/FidoCure for full activation
+  let neoScore = 0;
+  if (genomicStatus === 'WGS' || genomicStatus === 'WES') neoScore += 4;
+  else if (genomicStatus === 'FidoCure') neoScore += 2;
+  if (tmb >= 10) neoScore += 2;
+  if (tmb >= 20) neoScore += 2;
+  if (tp53) neoScore += 1; // TP53 loss → genomic instability → more neoantigens
+  if (neoScore >= 2) {
+    active.push('Neoantigen');
+    channels.push({name:'Neoantigen', active:true, score:neoScore, detail:`${genomicStatus!=='None'?'Genomic profiling available — neoantigen prediction possible.':'Genomic profiling needed.'} TMB ${tmb||'unknown'}. ${tp53?'TP53 mutation → genomic instability → higher neoantigen load.':''} This channel enables personalized mRNA vaccine design (Conyngham/Rosie approach).`});
+  } else {
+    channels.push({name:'Neoantigen', active:false, score:0, detail:'No genomic data available. WGS/WES via FidoCure would activate this channel for personalized mRNA vaccine pipeline.'});
+  }
+
+  // 2. VIRAL ANTIGEN CHANNEL
+  // Canine viral antigens: papillomavirus (oral SCC), canine transmissible venereal tumor (CTVT) retroviruses
+  let viralActive = false;
+  if (ct === 'SCC' && (loc === 'Oral' || loc === 'Cutaneous')) { viralActive = true; }
+  if (viralActive) {
+    active.push('Viral Antigen');
+    channels.push({name:'Viral Antigen', active:true, score:2, detail:'Canine papillomavirus (CPV) association in oral/cutaneous SCC. Foreign viral antigens are highly immunogenic targets. Analogous to HPV E6/E7 in human cervical/HNSCC.'});
+  } else {
+    channels.push({name:'Viral Antigen', active:false, score:0, detail:'No viral association detected. Most canine cancers are non-viral origin.'});
+  }
+
+  // 3. FUSION PROTEIN CHANNEL
+  // Limited in canine oncology but emerging via WGS
+  let fusionActive = (genomicStatus === 'WGS' || genomicStatus === 'WES') && ['Histiocytic','STS','Fibrosarcoma'].includes(ct);
+  if (fusionActive) {
+    active.push('Fusion Protein');
+    channels.push({name:'Fusion Protein', active:true, score:1, detail:'WGS may reveal fusion genes in sarcomas. Fusion junctions create unique neoepitopes. Canine histiocytic sarcoma and STS may harbor targetable fusions (emerging research via FidoCure/WGS).'});
+  } else {
+    channels.push({name:'Fusion Protein', active:false, score:0, detail:'Fusion detection requires WGS. Limited canine fusion data vs human. Active research area.'});
+  }
+
+  // 4. TUMOR-ASSOCIATED ANTIGEN (TAA) CHANNEL — major channel for dogs
+  const taaTargets = [];
+  if (ct === 'Melanoma') taaTargets.push('Tyrosinase', 'gp100', 'MART-1');
+  if (ckit || ct === 'MCT') taaTargets.push('c-KIT/RTK');
+  if (ct === 'Osteosarcoma') taaTargets.push('HER2-canine', 'Survivin');
+  if (ct === 'Hemangiosarcoma') taaTargets.push('VEGFR2', 'CD31/PECAM');
+  if (her2amp) taaTargets.push('HER2-amplified');
+  if (braf) taaTargets.push('BRAF V595E');
+  if (['TCC','Mammary','AnalSac'].includes(ct)) taaTargets.push('COX-2/PGE2');
+  if (ct === 'Lymphoma_B' || immuno === 'B-cell') taaTargets.push('CD20', 'CD79a');
+  if (ct === 'Lymphoma_T' || immuno === 'T-cell') taaTargets.push('CD3');
+  if (ct === 'Histiocytic') taaTargets.push('CD11c', 'CD18');
+  if (pik3ca) taaTargets.push('PIK3CA-driven');
+  if (taaTargets.length > 0) {
+    active.push('TAA');
+    channels.push({name:'TAA', active:true, score:taaTargets.length, detail:`Active targets: ${taaTargets.join(', ')}. Tumor-associated antigens overexpressed on tumor vs normal tissue. Targetable by vaccines, ADCs, monoclonal antibodies, TKIs.`});
+  } else {
+    channels.push({name:'TAA', active:false, score:0, detail:'No high-confidence TAA targets identified from current inputs.'});
+  }
+
+  // 5. CANCER-TESTIS ANTIGEN (CTA) CHANNEL
+  // Canine NY-ESO-1 and MAGE homologs exist
+  const ctaCancers = ['Melanoma','Osteosarcoma','STS','Hemangiosarcoma'];
+  if (ctaCancers.includes(ct)) {
+    active.push('CTA');
+    channels.push({name:'CTA', active:true, score:1, detail:`Canine MAGE and NY-ESO-1 homologs expressed in ${ct}. Cancer-testis antigens are normally restricted to testes — aberrant tumor expression makes them immune targets. Requires IHC confirmation.`});
+  } else {
+    channels.push({name:'CTA', active:false, score:0, detail:'Low CTA expression probability for this cancer type.'});
+  }
+
+  // 6. NK STRESS LIGAND CHANNEL
+  const nkActive = ['Cold','Desert'].includes(tme) || prior.includes('Chemo') || prior.includes('Radiation') || ['Osteosarcoma','Hemangiosarcoma','Lymphoma_B','Lymphoma_T'].includes(ct);
+  if (nkActive) {
+    active.push('NK Stress Ligands');
+    channels.push({name:'NK Stress Ligands', active:true, score:1, detail:'MICA/MICB/ULBP homologs upregulated by chemo/radiation stress. NK cell therapy applicable. Canine NK cells express NKG2D. Cold TME paradoxically upregulates stress ligands — NK cells bypass MHC restriction.'});
+  } else {
+    channels.push({name:'NK Stress Ligands', active:false, score:0, detail:'NK stress ligands uncertain. Chemo or radiation would activate this channel.'});
+  }
+
+  // 7. GLYCAN CHANNEL
+  const glycanActive = ['Osteosarcoma','Melanoma','Mammary'].includes(ct);
+  if (glycanActive) {
+    active.push('Glycan');
+    channels.push({name:'Glycan', active:true, score:1, detail:`Aberrant glycosylation in canine ${ct}. GD2 expression in osteosarcoma (same target as human neuroblastoma — dinutuximab). MUC1 aberrant glycoforms in mammary carcinoma. Targetable by anti-glycan antibodies.`});
+  } else {
+    channels.push({name:'Glycan', active:false, score:0, detail:'Glycan targeting not primary for this cancer type.'});
+  }
+
+  // 8. ERV CHANNEL (Endogenous Retroviruses)
+  const ervActive = tmb >= 15 || (genomicStatus === 'WGS' && (tp53 || pten));
+  if (ervActive) {
+    active.push('ERV');
+    channels.push({name:'ERV', active:true, score:1, detail:'High TMB or genomic instability (TP53/PTEN loss) may reactivate canine endogenous retroviruses. ERV-derived peptides are foreign-like antigens. Investigational but promising pathway activated by epigenetic therapies (azacitidine/decitabine).'});
+  } else {
+    channels.push({name:'ERV', active:false, score:0, detail:'ERV channel investigational. High TMB + WGS would assess ERV reactivation.'});
+  }
+
+  // 9. LIPID ANTIGEN CHANNEL
+  channels.push({name:'Lipid Antigen', active:false, score:0, detail:'CD1d-restricted NKT cell pathway. Investigational in canine oncology. Alpha-galactosylceramide (α-GalCer) activates NKT cells — preclinical canine data exists.'});
+
+  return { channels, activeChannels: active };
+}
+
+// ========== LAYER 2: PERSONALIZED IMMUNE WEAPONS ==========
+function buildLayer2(ct, stage, hg, ckit, braf, cox2, immuno, prior, budget, met, ln, clean, mi, ki67, loc, perf, genomicStatus, tme, tmb, tp53, pten, pik3ca, her2amp, pdl1pos, mdr1, activeChannels, breed, weight) {
+  const recs = [];
+  const budgetOK = budget === 'High' || budget === 'Unlimited';
+  const hasGenomics = genomicStatus !== 'None';
+  const isCold = ['Cold','Desert','Excluded'].includes(tme);
+
+  // ===== WEAPON 1: PERSONALIZED NEOANTIGEN mRNA VACCINE =====
+  if (activeChannels.includes('Neoantigen') && (genomicStatus === 'WGS' || genomicStatus === 'WES')) {
+    recs.push({t:'Personalized mRNA Neoantigen Vaccine (Conyngham/Rosie Approach)', d:`<strong>THIS IS THE BREAKTHROUGH PATHWAY.</strong> WGS data available → neoantigen prediction via DLA binding analysis → select 7-20 top neoepitopes → design mRNA construct (codon-optimized, UTRs, linkers) → synthesize → administer SC/IM.<br><br><strong>Conyngham case (HSA):</strong> 7 neoantigens selected, mRNA vaccine + toceranib TKI + experimental PD-1 → durable response. This pipeline adapts that approach to this specific dog's tumor genomics.<br><br><strong>Key canine difference:</strong> Uses DLA (Dog Leukocyte Antigen) haplotype instead of human HLA for MHC binding prediction. DLA-88 (Class I) and DLA-DRB1 (Class II) typing required.<br><br>See Synthesis Pipeline below for step-by-step execution.`, c:'purple', cost:'$5,000-15,000 (custom synthesis)'});
+  } else if (genomicStatus === 'FidoCure') {
+    recs.push({t:'Targeted Neoantigen Vaccine (From FidoCure Panel)', d:`FidoCure panel identifies actionable mutations. While not full WGS (fewer neoantigens available), targeted mutations can be used for peptide or mRNA vaccine design with 3-8 neoepitopes. Upgrade to full WGS for 20+ neoantigen identification.<br><br><strong>Recommended:</strong> Upgrade FidoCure → full WGS/WES for comprehensive neoantigen landscape.`, c:'purple', cost:'$3,000-8,000'});
+  }
+
+  // ===== WEAPON 2: AUTOLOGOUS TUMOR VACCINE (Torigen) =====
+  if (['Osteosarcoma','Melanoma','STS','Hemangiosarcoma','MCT','Histiocytic'].includes(ct) && prior.includes('Surgery')) {
+    recs.push({t:'Autologous Tumor Cell Vaccine (Torigen Pharmaceuticals)', d:`Patient-specific vaccine from excised tumor tissue. Tumor cells are lysed → loaded onto lipid nanoparticles → administered as personalized vaccine. Available through participating vet oncologists NOW. No WGS required — uses the actual tumor as antigen source.<br><br><strong>Advantage:</strong> Covers ALL antigens (neoantigens + TAAs + CTAs) since it uses whole tumor. No genomic data needed.<br><strong>Evidence:</strong> Torigen canine studies show improved disease-free intervals in OSA, melanoma, STS.`, c:'teal', cost:'$2,000-4,000'});
+  }
+
+  // ===== WEAPON 3: CHECKPOINT INHIBITORS =====
+  if (pdl1pos || ['Melanoma','TCC','Lymphoma_B','Lymphoma_T'].includes(ct) || tme === 'Hot' || tme === 'Warm') {
+    recs.push({t:'Anti-PD-1/PD-L1 Checkpoint Inhibitor (Experimental)', d:`Canine anti-PD-1 monoclonal antibodies exist experimentally (not yet FDA-approved for dogs). ${pdl1pos?'PD-L1 expression detected — high likelihood of response.':'PD-L1 not confirmed but cancer type suggests potential response.'}<br><br><strong>Available via:</strong> NCI COTC clinical trials at member institutions (free drug + monitoring). NC State, Colorado State, Penn all have active canine checkpoint trials.<br><strong>Mechanism:</strong> Same as human pembrolizumab/nivolumab — blocks PD-1/PD-L1 to unleash existing T-cell response.<br><strong>Combine with:</strong> mRNA vaccine (Layer 2) + TME conversion (Layer 3) for maximum effect.${isCold?' <strong>WARNING:</strong> Checkpoint alone will fail in cold TME. MUST convert TME first (Layer 3).':''}`, c:'green', cost:'$500-2,000/dose (trial) or $2,000-5,000 (off-label human drug)'});
+  }
+
+  // ===== WEAPON 4: ADOPTIVE T-CELL THERAPY (Elias) =====
+  if (['Osteosarcoma','STS','Melanoma','Hemangiosarcoma'].includes(ct) && budgetOK) {
+    recs.push({t:'Elias Autologous T-Cell Therapy (ECI-101)', d:`<strong>Only canine adoptive cell therapy available.</strong> Tumor excised → processed → patient's T-cells expanded against tumor antigens ex vivo → reinfused. Equivalent to human TIL therapy.<br><br><strong>Data:</strong> Osteosarcoma pilot: median 415 days vs 270 days carboplatin historical control (54% improvement).<br><strong>Available at:</strong> Select NCI COTC centers. Requires tumor tissue from surgery.<br><strong>Combine with:</strong> Checkpoint inhibitor + TME conversion for synergistic effect.`, c:'teal', cost:'$10,000-15,000'});
+  }
+
+  // ===== WEAPON 5: TKI THERAPY (TARGETED) =====
+  if (ckit || ct === 'MCT') {
+    if (ckit) recs.push({t:'Masitinib (Kinavet) — c-KIT Targeted', d:'c-KIT mutation confirmed: masitinib 12.5 mg/kg/day. Response 50%+ in c-KIT+ MCT. Also PDGFR, FGFR3.', c:'green', cost:'$300-600/month'});
+    recs.push({t:'Toceranib (Palladia) — Multi-TKI', d:'VEGFR + PDGFR + c-KIT. 2.75 mg/kg EOD. Works in c-KIT mutated AND wild-type MCT. Also: immunomodulatory — reduces Tregs, enhances anti-tumor immunity.', c:'green', cost:'$200-400/month'});
+  }
+  if (['AnalSac','Thyroid','Hemangiosarcoma'].includes(ct)) {
+    recs.push({t:'Toceranib (Palladia) — Off-Label', d:`Multi-TKI with activity in ${ct}. Anti-VEGF component provides TME modulation (Layer 3 synergy).`, c:'blue', cost:'$200-400/month'});
+  }
+
+  // ===== WEAPON 6: ONCEPT + BOOST (Melanoma) =====
+  if (ct === 'Melanoma' && !prior.includes('Oncept')) {
+    recs.push({t:'Oncept + Checkpoint Combination', d:'Oncept xenogeneic tyrosinase vaccine primes immune response → combine with experimental canine anti-PD-1 checkpoint to amplify and sustain. Multi-modal: Oncept (antigen) + checkpoint (brake release) + TKI (TME modulation). This triple combination is the canine equivalent of human melanoma mRNA vaccine + pembrolizumab.', c:'green', cost:'$800-1,500 (Oncept) + $500-2,000 (checkpoint trial)'});
+  }
+
+  // ===== WEAPON 7: ImpriMed PRECISION DRUG SELECTION =====
+  if (ct.startsWith('Lymphoma') && !prior.includes('ImpriMed')) {
+    recs.push({t:'ImpriMed AI Drug Sensitivity Testing', d:'Tests patient tumor cells against 15+ drugs ex vivo. AI predicts best responders in 5-7 days. Eliminates guesswork — especially critical for T-cell lymphoma where standard CHOP often fails. This IS personalized medicine — selecting the right drug for THIS specific tumor.', c:'teal', cost:'$800-1,200'});
+  }
+
+  // ===== WEAPON 8: FidoCure PRECISION MATCHING =====
+  if (hasGenomics && ['TCC','MCT','AnalSac','Hemangiosarcoma','Osteosarcoma','STS','Histiocytic','Melanoma'].includes(ct)) {
+    recs.push({t:'FidoCure Genomic-Matched Therapy', d:`Tumor profiling identifies actionable mutations → matched with targeted therapies (human drugs used off-label in dogs). Platform tracks outcomes across 10,000+ canine patients for evidence-based off-label use.<br><br>Identified targets: ${ckit?'c-KIT ':''}${braf?'BRAF V595E ':''}${tp53?'TP53 ':''}${pten?'PTEN ':''}${pik3ca?'PIK3CA ':''}${her2amp?'HER2 ':''}`, c:'teal', cost:'$600-1,000'});
+  }
+
+  // ===== WEAPON 9: CANINE ANTI-GD2 (Osteosarcoma) =====
+  if ((ct === 'Osteosarcoma' || ct === 'Osteosarcoma_Axial') && budgetOK) {
+    recs.push({t:'Anti-GD2 Antibody Therapy (Experimental)', d:'GD2 ganglioside is overexpressed on canine osteosarcoma (same target as human neuroblastoma where dinutuximab is FDA-approved). Canine anti-GD2 antibodies in preclinical/early clinical development. Available through NCI COTC trials.<br><br><strong>Human analog:</strong> Dinutuximab (Unituxin) ORR 66% in neuroblastoma. Canine studies underway.', c:'blue', cost:'$2,000-5,000 (trial)'});
+  }
+
+  // ===== WEAPON 10: ONCOLYTIC VIRUS THERAPY =====
+  if (['Melanoma','Osteosarcoma','Hemangiosarcoma','STS','BrainGlioma'].includes(ct) && budgetOK) {
+    recs.push({t:'Oncolytic Virus Therapy (Experimental)', d:`Engineered viruses that selectively replicate in and lyse tumor cells → release tumor antigens → convert cold TME to hot. Canine studies with modified canine distemper virus and vaccinia virus show promise.<br><br><strong>Mechanism:</strong> Direct tumor lysis + antigen release + innate immune activation (STING pathway) + adaptive immune priming.<br><strong>Access:</strong> NCI COTC trials. ${ct==='BrainGlioma'?'Especially promising for brain tumors where systemic therapy cannot reach.':''}`, c:'blue', cost:'$3,000-8,000 (trial)'});
+  }
+
+  // ===== WEAPON 11: NK CELL THERAPY =====
+  if (activeChannels.includes('NK Stress Ligands') && budgetOK) {
+    recs.push({t:'NK Cell Therapy (Experimental)', d:'Natural killer cells bypass MHC restriction — effective even when tumor downregulates MHC-I (common immune escape). Canine NK cells can be expanded ex vivo from peripheral blood → activated with IL-2/IL-15 → reinfused.<br><br><strong>Advantage in cold TME:</strong> NK cells don\'t require prior T-cell priming or antigen presentation. Can work in immune-desert tumors where T-cell approaches fail.', c:'blue', cost:'$5,000-10,000 (experimental)'});
+  }
+
+  // ===== WEAPON 12: METRONOMIC IMMUNOMODULATION =====
+  if ((hg === 'High' || met || !clean) && perf >= 60) {
+    recs.push({t:'Metronomic Immunomodulatory Protocol', d:'Low-dose continuous cyclophosphamide (10-15 mg/m²/day) + piroxicam (0.3 mg/kg/day). <strong>This is NOT just chemo</strong> — at metronomic doses it depletes Tregs, inhibits VEGF-driven angiogenesis, and induces CXCL9/10 for T-cell recruitment. Combined with checkpoint inhibitor = potent anti-tumor immune response.', c:'blue', cost:'$50-100/month'});
+  }
+
+  // ===== WEAPON 13: VERDINEXOR (Lymphoma) =====
+  if (ct.startsWith('Lymphoma')) {
+    recs.push({t:'Verdinexor (Laverdia-CA1)', d:'Conditionally FDA-approved. Nuclear export inhibitor. 1.75 mg/kg MWF oral. Response ~30%. Oral at-home administration.', c:'green', cost:'$200-500/month'});
+  }
+
+  // ===== WEAPON 14: COX-2 IMMUNOTHERAPY SYNERGY =====
+  if (cox2 || ['TCC','SCC','Mammary','AnalSac'].includes(ct)) {
+    recs.push({t:'COX-2 Inhibition + Immune Synergy', d:'Piroxicam 0.3 mg/kg SID. COX-2 drives PGE2 → immunosuppressive TME. Blocking COX-2 reverses MDSC accumulation + enhances checkpoint efficacy + reduces VEGF. Combine with ALL other immunotherapy weapons for synergy.', c:'green', cost:'$15-30/month'});
+  }
+
+  // ===== WEAPON 15: BRAF-TARGETED (TCC) =====
+  if (braf && !ct.startsWith('Lymph')) {
+    recs.push({t:'BRAF V595E Targeted Therapy + Checkpoint', d:'Vemurafenib 5 mg/kg BID (off-label, compounded) OR trametinib (MEK inhibitor). BRAF inhibition releases tumor antigens → combine with checkpoint for durable response. Human DREAMseq lesson: immunotherapy FIRST, then BRAF inhibitor.', c:'blue', cost:'$200-500/month'});
+  }
+
+  // ===== WEAPON 16: HER2 TARGETING =====
+  if (her2amp || ct === 'Osteosarcoma') {
+    recs.push({t:'HER2-Targeted Vaccine/Therapy', d:`Canine HER2 (cHER2) is expressed in osteosarcoma, mammary carcinoma, and other solid tumors. ${ct==='Osteosarcoma'?'Colorado State Listeria-based HER2 vaccine (ADXS31-164) in canine OSA trials showed improved survival.':'HER2 amplification detected — potential for anti-HER2 antibody (trastuzumab off-label) or HER2-targeted vaccine.'}<br><br><strong>Human analog:</strong> T-DXd (trastuzumab deruxtecan) PFS 28.8mo in HER2+ breast cancer.`, c:'blue', cost:'$2,000-5,000 (trial/off-label)'});
+  }
+
+  // ===== WEAPON 17: PSP MUSHROOM (HSA Evidence) =====
+  if (ct === 'Hemangiosarcoma') {
+    recs.push({t:'I\'m-Yunity (PSP) — Evidence-Based Immunomodulator', d:'Penn Vet study: splenic HSA dogs on PSP mushroom median 199d vs 86d. Coriolus versicolor polysaccharopeptide modulates innate immunity via TLR signaling. Combine with ALL other weapons.', c:'teal', cost:'$50-80/month'});
+  }
+
+  // ===== WEAPON 18: EPIGENETIC PRIMING =====
+  if (activeChannels.includes('ERV') || (isCold && budgetOK)) {
+    recs.push({t:'Epigenetic Priming (Azacitidine/Decitabine)', d:'Low-dose DNA methyltransferase inhibitors reactivate silenced tumor antigens including ERVs and CTAs → increase neoantigen presentation → convert immune-cold tumors to immune-responsive. Use BEFORE checkpoint or mRNA vaccine for maximum effect.', c:'amber', cost:'$200-500/month (compounded)'});
+  }
+
+  // ===== WEAPON 19: STING AGONIST =====
+  if (isCold && budgetOK) {
+    recs.push({t:'STING Agonist (Intratumoral)', d:'Activates innate immune sensing → type I interferon → dendritic cell activation → T-cell priming. Converts cold/desert TME to hot. Intratumoral injection. Available through clinical trials at NCI COTC centers.', c:'amber', cost:'$2,000-5,000 (trial)'});
+  }
+
+  // ===== WEAPON 20: RADIATION AS IMMUNOTHERAPY =====
+  if (!prior.includes('Radiation') && ['Melanoma','STS','Osteosarcoma','Nasal'].includes(ct)) {
+    recs.push({t:'Hypofractionated Radiation — Immune Priming', d:'Low-dose radiation (8 Gy x 3) induces immunogenic cell death → antigen release → abscopal effect when combined with checkpoint. Sequence: radiation FIRST (1-2 weeks) → then checkpoint inhibitor. Not just palliative — this is radiation as an immune weapon.', c:'blue', cost:'$1,500-3,000'});
+  }
+
+  return recs;
+}
+
+// ========== SYNTHESIS PIPELINES ==========
+function buildSynthesisPipelines(ct, stage, genomicStatus, activeChannels, budgetOK, breed, weight, prior) {
+  const pipelines = [];
+
+  // PIPELINE A: Personalized mRNA Neoantigen Vaccine
+  if (activeChannels.includes('Neoantigen') && (genomicStatus === 'WGS' || genomicStatus === 'WES')) {
+    pipelines.push({
+      title: 'Personalized mRNA Neoantigen Vaccine Pipeline',
+      subtitle: 'The Conyngham/Rosie approach — adapted for this patient',
+      steps: [
+        {title:'Whole Genome/Exome Sequencing', detail:`Sequence tumor tissue + matched normal (blood/buccal). <strong>Provider:</strong> FidoCure (Palo Alto, CA) for canine-specific panel or Novogene/Illumina for full WGS. ${genomicStatus==='WGS'?'ALREADY DONE — proceed to step 2.':'Required if not already done.'} Cost: $600-2,000.`},
+        {title:'DLA (Dog Leukocyte Antigen) Typing', detail:'Type DLA-88 (Class I) and DLA-DRB1 (Class II) haplotypes for MHC binding prediction. <strong>Provider:</strong> UC Davis VGL (Veterinary Genetics Lab) or Animal Genetics Inc. This replaces human HLA typing. Cost: $100-300.'},
+        {title:'Variant Calling & Neoantigen Prediction', detail:'Somatic mutation calling (Mutect2/Strelka2) → filter for expressed mutations (RNAseq if available) → predict DLA binding affinity (NetMHCpan adapted for canine DLA alleles) → rank by immunogenicity score. Select top 7-20 neoantigens. <strong>Provider:</strong> Bioinformatics via FidoCure or academic partner (Penn, CSU, UC Davis). Cost: $500-1,500.'},
+        {title:'AlphaFold Protein Structure Modeling', detail:'Model 3D structure of each neoantigen to verify surface accessibility and DLA groove fit. Conyngham used this for Rosie\'s 7 targets. <strong>Tool:</strong> AlphaFold2/ColabFold (free, open-source) + manual curation by computational biologist. Cost: $0-500 (academic collaboration).'},
+        {title:'mRNA Vaccine Design & Synthesis', detail:'Design multi-epitope mRNA construct: signal peptide → neoantigen 1 → flexible linker (GPGPG) → neoantigen 2 → ... → neoantigen N → universal T-helper epitope (PADRE). Add 5\' cap, optimized UTRs, poly(A) tail, codon optimization for canine codons. <strong>Synthesis providers:</strong> TriLink BioTechnologies (San Diego), Aldevron (Fargo, ND), or BioNTech custom synthesis. Formulate in LNP (lipid nanoparticles). Cost: $3,000-8,000.'},
+        {title:'Quality Control & Testing', detail:'Verify mRNA integrity (capillary electrophoresis), LNP particle size (DLS), encapsulation efficiency (>90% required), endotoxin testing (<5 EU/kg). <strong>Provider:</strong> Contract testing lab (Pacific Biotech, Eurofins). Cost: $500-1,000.'},
+        {title:'Administration Protocol', detail:`Administer SC or IM, ${weight?Math.round(weight*0.45)+'kg body weight':'dose per kg'}. Prime: Day 0, 7, 14 (3 doses, 1 week apart). Boost: Day 42, then q4-6 weeks. <strong>Combine with:</strong> Toceranib (anti-VEGF/TME) starting day -7 + experimental anti-canine PD-1 starting day 14 (after 2nd vaccine dose). Monitor: lymphocyte count, tumor size, ctDNA if available.`},
+      ],
+      cost: '$5,000-15,000 total pipeline',
+      timeline: '4-8 weeks from tumor sample to first injection'
+    });
+  }
+
+  // PIPELINE B: Adoptive T-Cell Therapy
+  if (['Osteosarcoma','STS','Melanoma','Hemangiosarcoma'].includes(ct) && budgetOK && prior.includes('Surgery')) {
+    pipelines.push({
+      title: 'Adoptive T-Cell Therapy Pipeline (Elias ECI-101)',
+      subtitle: 'Canine equivalent of human TIL therapy',
+      steps: [
+        {title:'Tumor Tissue Collection', detail:'Fresh tumor tissue from surgical excision. Ship on ice within 24 hours to Elias Animal Health (Olathe, KS). Minimum 1 cm³ viable tumor required. Contact Elias pre-surgery to arrange logistics. Already done if surgery was performed — check if tissue was banked.'},
+        {title:'T-Cell Isolation & Expansion', detail:'Elias proprietary process: tumor-infiltrating lymphocytes isolated → expanded with IL-2 + tumor antigen re-stimulation → 2-4 weeks expansion to billions of tumor-reactive T-cells. Quality checks: viability >70%, CD8+ enrichment, tumor reactivity assay.'},
+        {title:'Lymphodepletion Pre-Conditioning', detail:'Low-dose cyclophosphamide (200 mg/m² IV) 3-5 days before T-cell infusion. Creates immunological space for infused T-cells. Depletes Tregs. Monitor CBC closely.'},
+        {title:'T-Cell Infusion', detail:'IV infusion of expanded autologous T-cells at Elias-partnered veterinary facility. Post-infusion: low-dose IL-2 SC for 5 days to support T-cell engraftment. Monitor for cytokine release syndrome (fever, hypotension — rare in dogs vs humans).'},
+        {title:'Combination & Maintenance', detail:'Day 14+: Add experimental anti-PD-1 checkpoint to prevent T-cell exhaustion. Consider metronomic cyclophosphamide for ongoing Treg depletion. If mRNA vaccine also done: administer vaccine boost 3-4 weeks post T-cell infusion to restimulate.'},
+      ],
+      cost: '$10,000-15,000',
+      timeline: '3-5 weeks from surgery to T-cell infusion'
+    });
+  }
+
+  // PIPELINE C: Whole Tumor Vaccine (Torigen — available NOW)
+  if (['Osteosarcoma','Melanoma','STS','Hemangiosarcoma','MCT','Histiocytic'].includes(ct) && prior.includes('Surgery')) {
+    pipelines.push({
+      title: 'Autologous Whole Tumor Vaccine Pipeline (Torigen)',
+      subtitle: 'Available NOW — no genomic data needed',
+      steps: [
+        {title:'Tumor Tissue Submission', detail:'Fresh or frozen tumor tissue from surgery. Ship to Torigen Pharmaceuticals. Formalin-fixed tissue NOT acceptable. Contact Torigen pre-surgery for collection kit. Many vet oncologists already have kits on hand.'},
+        {title:'Vaccine Manufacturing', detail:'Torigen process: tumor cells lysed → loaded onto lipid nanoparticle carriers → irradiated for safety → formulated as injectable vaccine. Covers ALL tumor antigens (neoantigens + TAAs + CTAs + glycans) without needing to identify them individually. 7-10 day turnaround.'},
+        {title:'Administration', detail:'3 SC injections at 1-week intervals. Boosts every 4-6 weeks. Combine with metronomic cyclophosphamide (Treg depletion) + checkpoint if available. Monitor injection site reactions (mild, self-limiting).'},
+      ],
+      cost: '$2,000-4,000',
+      timeline: '7-10 days from tissue to first injection'
+    });
+  }
+
+  return pipelines;
+}
+
+// ========== LAYER 3: TME MODULATION ==========
+function buildLayer3(ct, tme, prior, met, cox2, budgetOK, hg, pdl1pos, breed) {
+  const recs = [];
+  const isCold = ['Cold','Desert','Excluded'].includes(tme);
+  const isHot = tme === 'Hot';
+  const isWarm = tme === 'Warm';
+
+  if (isCold) {
+    recs.push({t:'CRITICAL: TME Conversion Required Before Immunotherapy', d:'<strong>Cold/excluded/desert TME detected.</strong> Checkpoint inhibitors, T-cell therapy, and vaccines will likely FAIL without first converting the TME to immune-permissive. Apply the strategies below BEFORE or CONCURRENTLY with Layer 2 weapons. Sequence is everything.', c:'red'});
+
+    recs.push({t:'Strategy 1: ICD-Inducing Chemotherapy (Doxorubicin/Cyclophosphamide)', d:'Doxorubicin and cyclophosphamide induce immunogenic cell death → calreticulin exposure on dying tumor cells → dendritic cell activation → T-cell priming. Use BEFORE checkpoint. Sequence: ICD chemo → wait 1-2 weeks → checkpoint inhibitor.', c:'green'});
+
+    recs.push({t:'Strategy 2: Anti-VEGF via Toceranib (Palladia)', d:'Toceranib targets VEGFR2 → normalizes tumor vasculature → allows T-cell infiltration. In dogs, this is the primary anti-angiogenic agent. Start 1-2 weeks BEFORE immunotherapy. 2.75 mg/kg EOD. Also depletes Tregs via PDGFR pathway.', c:'green'});
+
+    recs.push({t:'Strategy 3: Metronomic Cyclophosphamide (Treg Depletion)', d:'Low-dose daily cyclophosphamide (10-15 mg/m²/day) selectively depletes regulatory T-cells → reduces immune suppression → induces CXCL9/10 chemokines for T-cell recruitment. Start 2 weeks before immunotherapy.', c:'green'});
+
+    recs.push({t:'Strategy 4: Low-Dose Radiation (Abscopal Effect)', d:'Hypofractionated RT (8 Gy x 3 fractions) to primary tumor → ICD + antigen release. When combined with checkpoint: abscopal effect (regression of non-irradiated metastases). Timing: radiation → checkpoint 7-14 days later.', c:'blue'});
+
+    if (budgetOK) {
+      recs.push({t:'Strategy 5: STING Agonist (Intratumoral)', d:'Intratumoral STING agonist → type I interferon burst → dendritic cell maturation → T-cell priming. Converts immune desert to inflamed. Available through NCI COTC trials.', c:'amber'});
+      recs.push({t:'Strategy 6: Oncolytic Virus (Intratumoral)', d:'Engineered virus selectively replicates in tumor → lysis + antigen release + innate activation. Equivalent to human T-VEC (melanoma). Canine distemper virus and vaccinia platforms in development.', c:'amber'});
+    }
+
+    if (tme === 'Excluded') {
+      recs.push({t:'Excluded TME: Anti-TGF-β Strategy', d:'T-cells present at tumor margins but cannot penetrate. TGF-β drives stromal barrier. Anti-TGF-β (galunisertib, off-label) + anti-VEGF to break physical barriers. Consider hyaluronidase if hyaluronan-rich stroma (Shar-Pei breeds).', c:'amber'});
+    }
+  }
+  else if (isHot) {
+    recs.push({t:'Hot TME — Checkpoint Inhibitor is Primary Strategy', d:'T-cells already infiltrated. Checkpoint blockade (anti-PD-1/PD-L1) is the primary weapon. Double checkpoint (anti-CTLA-4 + anti-PD-1) may escalate response.', c:'green'});
+    recs.push({t:'Maintain & Amplify: mRNA Vaccine + Checkpoint', d:'Hot TME means T-cells are present but exhausted. mRNA vaccine restimulates tumor-specific T-cells. Checkpoint prevents re-exhaustion. The combination is more potent than either alone.', c:'green'});
+  }
+  else if (isWarm) {
+    recs.push({t:'Warm TME — Boost to Hot with Targeted Conversion', d:'T-cells present at moderate levels. Push to hot with: anti-VEGF (toceranib) to normalize vasculature + metronomic cyclophosphamide for Treg depletion → then deploy Layer 2 weapons.', c:'green'});
+    recs.push({t:'ICD-Inducing Drug Selection', d:'When choosing Layer 0 chemo, prioritize ICD inducers (doxorubicin, cyclophosphamide, oxaliplatin) over non-ICD agents. ICD converts warm → hot.', c:'blue'});
+  }
+  else {
+    recs.push({t:'TME Unknown — Assessment Recommended', d:'TME status not assessed. Recommend: core biopsy with CD3/CD8 IHC for TIL quantification, PD-L1 staining, tumor immune profiling. Antech or IDEXX can provide panels. TME classification guides Layer 3 strategy selection.', c:'amber'});
+    recs.push({t:'Default: Assume Cold & Apply Conversion', d:'Without TME data, assume cold and apply ICD chemo + anti-VEGF (toceranib) + metronomic cyclophosphamide before immunotherapy. This covers the worst case.', c:'blue'});
+  }
+
+  // Universal TME strategies
+  recs.push({t:'Nutritional Immune Support', d:'High protein, moderate fat, low carbohydrate (Warburg effect). Omega-3 EPA/DHA 100 mg/kg/day (anti-inflammatory + anti-cachexia). Probiotics for gut microbiome support (emerging evidence: gut microbiome affects immunotherapy response in dogs as in humans). Hill\'s n/d or similar.', c:'green'});
+
+  if (cox2 || ['TCC','SCC','Mammary'].includes(ct)) {
+    recs.push({t:'COX-2 Inhibition for TME Remodeling', d:'Piroxicam reduces PGE2 → reverses MDSC accumulation → enhances checkpoint + radiation + vaccine efficacy. Low toxicity. Synergistic with everything.', c:'green'});
+  }
+
+  return recs;
+}
+
+// ========== LAYER 4: MONITORING ==========
+function buildLayer4(ct, stage, prior, budget, genomicStatus) {
+  const recs = [];
+  const budgetOK = budget === 'High' || budget === 'Unlimited';
+
+  recs.push({t:'CBC + Chemistry (Before Each Cycle)', d:'Minimum: CBC with differential + chemistry (ALT, BUN, Crea). Required before every chemo/immunotherapy cycle. Neutrophils >2,000/μL to proceed.', c:'green'});
+
+  // Canine ctDNA (emerging)
+  if (budgetOK && genomicStatus !== 'None') {
+    recs.push({t:'Liquid Biopsy / ctDNA Monitoring (Emerging)', d:'Canine ctDNA detection is rapidly developing. FidoCure and academic centers (CSU, Penn) developing canine liquid biopsy panels. Serial monitoring every 6-8 weeks can detect molecular relapse before clinical progression. Rising ctDNA = treatment failure signal → switch strategy.', c:'blue', cost:'$300-800/test'});
+  }
+
+  if (ct.startsWith('Lymphoma')) {
+    recs.push({t:'Lymph Node Assessment (Weekly During Induction)', d:'Palpate all peripheral lymph nodes. Caliper measurements. VCOG criteria: CR, PR, SD, PD.', c:'green'});
+    recs.push({t:'PARR (Molecular Remission Testing)', d:'PCR for antigen receptor rearrangement post-treatment. Detects minimal residual disease. Positive PARR = earlier relapse. Antech/IDEXX.', c:'blue'});
+    if (prior.includes('ImpriMed')) recs.push({t:'ImpriMed Follow-Up Testing', d:'Repeat ImpriMed if relapse occurs — drug sensitivity can change. New resistance patterns may emerge.', c:'blue', cost:'$800-1,200'});
+  }
+
+  if (['Osteosarcoma','Hemangiosarcoma','Melanoma','Mammary','AnalSac','STS'].includes(ct)) {
+    recs.push({t:'Thoracic Radiographs (3-View) q2-3 Months', d:'Pulmonary metastasis screening. Three views. Most common metastatic site for OSA, melanoma, HSA.', c:'green'});
+  }
+
+  if (['Hemangiosarcoma','AnalSac','Mammary','Insulinoma','Thyroid'].includes(ct)) {
+    recs.push({t:'Abdominal Ultrasound q2-3 Months', d:'Hepatic/splenic monitoring for HSA. Sublumbar LN for ASAC.', c:'green'});
+  }
+
+  if (ct === 'TCC') recs.push({t:'CADET BRAF Urine Test + Ultrasound', d:'Non-invasive BRAF V595E monitoring in urine. Bladder US q6-8 weeks.', c:'green'});
+  if (ct === 'MCT') recs.push({t:'Regional LN Cytology + Buffy Coat', d:'Sentinel LN assessment. Buffy coat for circulating mast cells.', c:'green'});
+
+  // Immunotherapy-specific monitoring
+  recs.push({t:'Immune Response Monitoring (If Immunotherapy Given)', d:'Post-vaccine/checkpoint: monitor absolute lymphocyte count trend (rising = good), interferon-gamma ELISpot if available (measures T-cell response to tumor antigens), delayed-type hypersensitivity skin test (inject tumor lysate — induration = immune response). These measure whether immunotherapy is WORKING.', c:'blue'});
+
+  recs.push({t:'Quality of Life Assessment (FETCH/HHHHHMM)', d:'Monthly formal QoL scoring. FETCH scale (validated) or HHHHHMM. Document trends. Guides treatment continuation vs palliation.', c:'green'});
+
+  recs.push({t:'Cardiac Monitoring (If Doxorubicin)', d:'Echo at baseline, mid-treatment, before 5th cycle. FS <25% → stop doxorubicin. Cumulative limit 180-240 mg/m². Doberman/Boxer: high DCM risk.', c:'amber'});
+
+  return recs;
+}
+
+// ========== RENDER FUNCTIONS ==========
+function renderLayer(layerName, subtitle, recs) {
+  if (recs.length === 0) return '';
+  let html = `<div class="out-section"><h2><span class="layer-tag">${layerName}</span> ${subtitle}</h2>`;
+  recs.forEach(r => {
+    html += `<div class="out-card ${r.c||'blue'}">
+      <div class="card-title">${r.t}</div>
+      <div class="card-detail">${r.d}</div>
+      ${r.cost ? `<div class="card-cost ${getCostClass(r.cost)}">${r.cost}</div>` : ''}
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function getCostClass(cost) {
+  if (!cost) return 'cost-low';
+  if (cost.includes('15,000') || cost.includes('10,000')) return 'cost-vhigh';
+  if (cost.includes('5,000') || cost.includes('8,000')) return 'cost-high';
+  if (cost.includes('$15') || cost.includes('$30') || cost.includes('$50') || cost.includes('N/A')) return 'cost-low';
+  return 'cost-mid';
+}
+
+function renderChannels(channels) {
+  const active = channels.filter(c=>c.active).length;
+  let html = `<div class="out-section"><h2><span class="layer-tag">Layer 1</span> 9 Antigen Channel Analysis — ${active}/${channels.length} Active</h2>`;
+  html += '<div class="channel-bar">';
+  channels.forEach(c => { html += `<span class="ch-chip ${c.active?'active':'inactive'}">${c.active?'&#10003; ':''}${c.name}</span>`; });
+  html += '</div>';
+  channels.filter(c=>c.active).forEach(c => {
+    html += `<div class="out-card green"><div class="card-title">${c.name} Channel (Score: ${c.score})</div><div class="card-detail">${c.detail}</div></div>`;
+  });
+  if (active === 0) {
+    html += `<div class="out-card amber"><div class="card-title">No Channels Active — Genomic Profiling Recommended</div><div class="card-detail">Without molecular data, antigen channels cannot be scored. FidoCure genomic profiling ($600-1,000) or full WGS ($1,500-2,500) would activate multiple channels and unlock personalized weapon selection.</div></div>`;
+  }
+  // Show inactive channels collapsed
+  const inactive = channels.filter(c=>!c.active);
+  if (inactive.length > 0) {
+    html += `<details style="margin-top:8px"><summary style="font-size:12px;color:var(--gray-500);cursor:pointer">Show ${inactive.length} inactive channels</summary>`;
+    inactive.forEach(c => { html += `<div class="out-card" style="opacity:0.6"><div class="card-title">${c.name}</div><div class="card-detail">${c.detail}</div></div>`; });
+    html += '</details>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderSynthesis(pipelines) {
+  let html = `<div class="out-section"><h2><span class="layer-tag">Synthesis</span> Treatment Synthesis Pipelines — Step-by-Step Execution</h2>`;
+  pipelines.forEach(p => {
+    html += `<div class="out-card purple">
+      <div class="card-title">${p.title}</div>
+      <div class="card-detail"><em>${p.subtitle}</em></div>
+      <div style="margin-top:12px">`;
+    p.steps.forEach((s, i) => {
+      html += `<div class="pipeline-step">
+        <div class="pipeline-num">${i+1}</div>
+        <div class="pipeline-content"><strong>${s.title}</strong><p>${s.detail}</p></div>
+      </div>`;
+    });
+    html += `</div>
+      <div style="margin-top:10px; display:flex; gap:12px; flex-wrap:wrap">
+        <div class="card-cost cost-high">${p.cost}</div>
+        <div class="card-cost cost-mid">${p.timeline}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderCenters(state) {
+  const centers = getNearestCenters(state === 'any' ? '' : state);
+  let html = `<div class="out-section"><h2><span class="layer-tag">Referral</span> Veterinary Oncology & Immunotherapy Centers</h2>`;
+  html += '<table class="partner-table"><thead><tr><th>Institution</th><th>Location</th><th>NCI COTC</th><th>Specialty</th></tr></thead><tbody>';
+  centers.forEach(c => {
+    html += `<tr><td class="name">${c.name}</td><td>${c.city}</td><td>${c.nci?'<span class="tag fda">NCI COTC</span>':'—'}</td><td>${c.specialty}</td></tr>`;
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function renderResearch(ct, stage, breed, genomicStatus) {
+  let html = `<div class="out-section"><h2><span class="layer-tag">Research</span> Clinical Trials, Diagnostics & Research Partners</h2>`;
+  RESEARCH_PARTNERS.forEach(p => {
+    if (p.name === 'ImpriMed' && !ct.startsWith('Lymphoma')) return;
+    html += `<div class="out-card blue"><div class="card-title">${p.name} — ${p.location}</div><div class="card-detail"><span class="tag exp">${p.type}</span> ${p.capabilities}</div></div>`;
+  });
+  html += `<div class="out-card green"><div class="card-title">Financial Assistance</div><div class="card-detail">
+    <strong>FETCH Fund</strong> — Grants up to $2,500 for canine cancer treatment<br>
+    <strong>The Pet Fund</strong> — Financial assistance for vet care<br>
+    <strong>RedRover Relief</strong> — Emergency grants<br>
+    <strong>Brown Dog Foundation</strong> — Bridge funding<br>
+    <strong>NCI COTC Trials</strong> — Often cover drug costs + diagnostics (FREE cutting-edge treatments)<br>
+    <strong>Zoetis Palladia Rebates</strong> — Manufacturer rebate program
+  </div></div></div>`;
+  return html;
+}
+
+function renderCompounders(ct, budget) {
+  let html = `<div class="out-section"><h2><span class="layer-tag">Sources</span> Drug Synthesis, Compounding & mRNA Manufacturing</h2>`;
+  html += '<table class="partner-table"><thead><tr><th>Company</th><th>Location</th><th>Capabilities</th></tr></thead><tbody>';
+  COMPOUNDERS.forEach(c => { html += `<tr><td class="name">${c.name}</td><td>${c.location}</td><td>${c.capabilities}</td></tr>`; });
+  html += '</tbody></table>';
+  html += `<div class="out-card purple" style="margin-top:12px">
+    <div class="card-title">mRNA Vaccine & Advanced Therapy Synthesis Partners</div>
+    <div class="card-detail">
+      <strong>TriLink BioTechnologies</strong> (San Diego, CA) — Custom mRNA synthesis, LNP formulation, GMP-grade. Used for research-grade canine mRNA vaccines.<br>
+      <strong>Aldevron</strong> (Fargo, ND) — mRNA manufacturing, plasmid DNA, LNP encapsulation. Scale from research to GMP.<br>
+      <strong>Elias Animal Health</strong> (Olathe, KS) — Autologous T-cell expansion and therapy manufacturing.<br>
+      <strong>Torigen Pharmaceuticals</strong> (Nationwide network) — Autologous tumor cell vaccine manufacturing. 7-10 day turnaround.<br>
+      <strong>UC Davis VGL</strong> (Davis, CA) — DLA typing for MHC binding prediction in neoantigen vaccine design.
+    </div>
+  </div>`;
+  html += `<div class="out-card teal" style="margin-top:8px">
+    <div class="card-title">FDA-Approved Drug Manufacturers</div>
+    <div class="card-detail">
+      <strong>Zoetis</strong> — Palladia (toceranib). Rebate programs available.<br>
+      <strong>Elanco</strong> — Tanovea-CA1 (rabacfosadine).<br>
+      <strong>Antech/Mars</strong> — Laverdia-CA1 (verdinexor).<br>
+      <strong>Virbac</strong> — Stelfonta (tigilanol tiglate).<br>
+      <strong>Boehringer Ingelheim</strong> — Oncept melanoma vaccine. Certified vet network.<br>
+      <strong>AB Science</strong> — Kinavet (masitinib). Limited US distribution.
+    </div>
+  </div></div>`;
+  return html;
+}
+
+function buildMissingDataSuggestions(ct, genomicStatus, ckit, braf, immunophenotype, pdl1pos, tmb, tme) {
+  const gaps = [];
+
+  // Genomic profiling
+  if (genomicStatus === 'None') {
+    gaps.push({
+      test: 'Genomic Profiling (FidoCure / WGS / WES)',
+      why: 'Without genomic data, the Neoantigen Channel cannot be activated and personalized targeted therapy matching is impossible. Genomics unlock 3-5 additional treatment layers including mRNA vaccine design, TKI matching, and CTLA-4/PD-L1 selection.',
+      how: 'FidoCure (One Health Company, Palo Alto CA): submit FFPE tumor block. WES + targeted panel, 10-14 day turnaround. Or full WGS via Colorado State / Broad Institute.',
+      cost: '$600–$1,500'
+    });
+  }
+
+  // Immunohistochemistry
+  if (!pdl1pos) {
+    gaps.push({
+      test: 'PD-L1 / Immunohistochemistry Panel (IHC)',
+      why: 'PD-L1 status determines checkpoint inhibitor eligibility. PD-L1+ tumors respond significantly better to anti-PD-1/PD-L1 therapy. IHC can also confirm tumor subtype, grade, and Ki-67 proliferation index.',
+      how: 'Submit FFPE tissue block to IDEXX BioAnalytics or Colorado State Diagnostic Lab. Specify canine PD-L1 (clone E1L3N adapted). Results in 5-7 days.',
+      cost: '$150–$400'
+    });
+  }
+
+  // Flow cytometry / PARR for lymphoma
+  if (ct === 'Lymphoma_B' || ct === 'Lymphoma_T' || ct === 'Lymphoma_Cutaneous') {
+    if (immunophenotype === 'NA' || !immunophenotype) {
+      gaps.push({
+        test: 'Flow Cytometry + PARR (Lymphoma Immunophenotyping)',
+        why: 'B-cell vs T-cell status is the single most critical prognostic variable in canine lymphoma. T-cell lymphoma has ~50% shorter survival than B-cell and requires different protocols (LOPP vs CHOP). Without immunophenotyping, you cannot select the right first-line protocol.',
+        how: 'Fresh lymph node aspirate or blood (if leukemic phase) to IDEXX BioAnalytics or NC State CVM. Flow cytometry (CD3/CD79a/CD20) + PARR (clonality testing). 3-5 day turnaround.',
+        cost: '$250–$500'
+      });
+    }
+    gaps.push({
+      test: 'ImpriMed AI Drug Sensitivity Testing',
+      why: 'Predicts which specific chemotherapy drugs will work for THIS patient\'s tumor cells. Critical for T-cell lymphoma where standard CHOP fails 30-40% of cases. Tests 15+ drugs simultaneously, eliminating guesswork.',
+      how: 'Submit fresh lymph node core biopsy or aspirate in special media (ImpriMed sends collection kit). Results in 5-7 days with ranked drug recommendations.',
+      cost: '$800–$1,200'
+    });
+  }
+
+  // c-KIT mutation for MCT
+  if (ct === 'MCT' && !ckit) {
+    gaps.push({
+      test: 'c-KIT Mutation Testing (Exon 11 / Exon 8)',
+      why: 'c-KIT exon 11 internal tandem duplication (ITD) is present in ~30-35% of canine MCT and predicts excellent response to toceranib (Palladia) and masitinib (Kinavet). Without c-KIT status, you cannot determine TKI eligibility — the most effective targeted therapy for MCT.',
+      how: 'FFPE tissue block to Colorado State University, IDEXX BioAnalytics, or Michigan State VDL. PCR-based assay. 5-10 day turnaround.',
+      cost: '$150–$350'
+    });
+  }
+
+  // BRAF V595E for TCC/urothelial
+  if (ct === 'TCC' && !braf) {
+    gaps.push({
+      test: 'BRAF V595E Mutation Testing (Urine or Tissue)',
+      why: 'BRAF V595E mutation present in ~80% of canine transitional cell carcinoma. Confirms diagnosis non-invasively (urine CADET BRAF test) and determines eligibility for vemurafenib and BRAF-targeted therapy. Also valuable for non-invasive disease monitoring.',
+      how: 'CADET BRAF urine test (Antech/Sentinel Biomedical): voided urine sample, non-invasive. Results in 5-7 days. Alternatively, tissue BRAF PCR from FFPE biopsy.',
+      cost: '$250–$450 (urine), $150–$300 (tissue)'
+    });
+  }
+
+  // TME assessment
+  if (!tme || tme === 'Unknown') {
+    gaps.push({
+      test: 'Tumor Microenvironment (TME) Assessment',
+      why: 'Cold (immune-excluded) vs hot (inflamed) TME status determines Layer 3 strategy. Cold tumors require TME conversion before immunotherapy will work. Without TME data, cold-to-hot conversion protocols cannot be precisely targeted.',
+      how: 'IHC panel on FFPE block: CD3+ (TIL count), CD68+ (macrophage infiltrate), PD-L1, CD8+/CD4+ ratio. Request "immune microenvironment panel" from Colorado State, NC State, or IDEXX BioAnalytics.',
+      cost: '$300–$600'
+    });
+  }
+
+  // TMB for neoantigen vaccine candidacy
+  if ((!tmb || tmb === 0) && (genomicStatus === 'WGS' || genomicStatus === 'WES' || genomicStatus === 'FidoCure')) {
+    gaps.push({
+      test: 'Tumor Mutational Burden (TMB) Quantification',
+      why: 'TMB (mutations/megabase) determines neoantigen vaccine candidacy and checkpoint inhibitor response. High TMB (≥10 mut/Mb) unlocks the Neoantigen Channel and significantly increases response to anti-PD-1 therapy. Can be extracted from your existing WGS/WES data.',
+      how: 'Request TMB calculation from your genomic profiling report. FidoCure and WGS providers can calculate TMB from existing data at no additional cost.',
+      cost: '$0 (from existing genomic data)'
+    });
+  }
+
+  return gaps;
+}
+
+function renderMissingData(gaps) {
+  if (gaps.length === 0) return '';
+  let html = `<div class="out-section"><h2><span class="layer-tag" style="background:var(--amber-100);color:var(--amber-700)">Data Gaps</span> Your Pipeline Could Be Improved With These Tests</h2>`;
+  html += `<div class="out-card amber" style="margin-bottom:12px"><div class="card-title">Why This Section Exists</div><div class="card-detail">This navigator is working with the data you provided — but several key inputs are missing. The tests below could unlock additional treatment channels, help select the right protocol, and significantly improve the precision of your personalized pipeline. Each gap is listed with <strong>why it matters</strong>, <strong>how to get it</strong>, and <strong>approximate cost</strong>.</div></div>`;
+  gaps.forEach((g, i) => {
+    html += `<div class="out-card amber">
+      <div class="card-title">${i+1}. ${g.test}</div>
+      <div class="card-detail">
+        <strong>Why it matters:</strong> ${g.why}<br><br>
+        <strong>How to get it:</strong> ${g.how}
+      </div>
+      <div class="card-cost cost-mid">${g.cost}</div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderCostSummary(ct, stage, budget, insurance, layer0, layer2, synth) {
+  const costs = {
+    'Lymphoma_B':[5000,25000], 'Lymphoma_T':[5000,25000], 'MCT':[2000,15000],
+    'Osteosarcoma':[5000,35000], 'Hemangiosarcoma':[4000,30000], 'Melanoma':[4000,25000],
+    'STS':[3000,20000], 'TCC':[2000,12000], 'Mammary':[3000,15000], 'AnalSac':[4000,18000],
+    'Histiocytic':[2000,15000], 'Thyroid':[3000,12000], 'Nasal':[5000,15000],
+    'BrainMeningioma':[5000,20000], 'BrainGlioma':[5000,18000], 'SCC':[3000,15000],
+  };
+  let [low, high] = costs[ct] || [3000, 20000];
+  // Add synth pipeline costs
+  if (synth.length > 0) high += 15000;
+
+  const insDiscount = (insurance === 'Comprehensive' || insurance === 'Trupanion') ? 0.2 : (insurance === 'Basic' ? 0.7 : 1.0);
+  const oop = [Math.round(low * insDiscount), Math.round(high * insDiscount)];
+
+  let html = `<div class="out-section"><h2><span class="layer-tag">Cost</span> Treatment Cost Summary (Standard + Personalized)</h2>`;
+  html += '<div class="score-grid">';
+  html += `<div class="score-box"><div class="score-val fair">$${(low/1000).toFixed(0)}k–$${(high/1000).toFixed(0)}k</div><div class="score-label">Full Pipeline Range</div></div>`;
+  html += `<div class="score-box"><div class="score-val ${budget==='Low'?'poor':'good'}">$${(oop[0]/1000).toFixed(0)}k–$${(oop[1]/1000).toFixed(0)}k</div><div class="score-label">Est. Out-of-Pocket</div></div>`;
+  html += `<div class="score-box"><div class="score-val">${layer0.length + layer2.length + synth.length}</div><div class="score-label">Treatment Options</div></div>`;
+  html += `<div class="score-box"><div class="score-val">${insurance !== 'None' ? insurance : 'None'}</div><div class="score-label">Insurance</div></div>`;
+  html += '</div>';
+
+  html += `<div class="out-card blue" style="margin-top:10px">
+    <div class="card-title">Cost Tiers — What You Get at Each Level</div>
+    <div class="card-detail">
+      <strong>$1k–3k:</strong> Layer 0 standard of care only (surgery, basic chemo). What any vet oncologist provides.<br>
+      <strong>$3k–10k:</strong> + ImpriMed testing, FidoCure profiling, Torigen vaccine, metronomic immunotherapy. Significant personalization.<br>
+      <strong>$10k–25k:</strong> + Elias T-cell therapy, personalized mRNA vaccine pipeline, checkpoint trials, full synthesis pathway.<br>
+      <strong>$25k+:</strong> Full multi-modal personalized pipeline: mRNA vaccine + T-cell therapy + checkpoint + TME conversion. The Conyngham/Rosie approach.<br>
+      <strong>NCI COTC Trials:</strong> Many cutting-edge immunotherapies available FREE through clinical trials.
+    </div>
+  </div>`;
+
+  html += `<div class="out-section" style="margin-top:20px"><div class="out-card amber">
+    <div class="card-title">Important Disclaimer</div>
+    <div class="card-detail">This navigator is a <strong>decision-support tool for veterinary professionals and informed pet owners</strong>. It does NOT replace a board-certified veterinary oncologist (DACVIM-Oncology). Personalized immunotherapy treatments (mRNA vaccines, T-cell therapy, checkpoint inhibitors) are largely experimental in veterinary medicine and should only be pursued through qualified institutions. Drug doses, protocols, and availability may change.</div>
+  </div></div>`;
+
+  html += '</div>';
+  return html;
+}
+</script>
+</body>
+</html>
